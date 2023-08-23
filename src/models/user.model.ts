@@ -3,6 +3,9 @@ import bcrypt from "bcrypt"
 import logger from "../utils/logger"
 import crypto from "crypto"
 import { sendWelcomeUser } from "../utils/sendmail"
+import dotenv from "dotenv"
+import convert from "../utils/convertEnvStrToNum"
+dotenv.config()
 
 export interface Address extends mongoose.Document {
   street: string
@@ -89,8 +92,9 @@ userSchema.pre("save", async function (next) {
   if (!user.isModified("password")) {
     return next()
   }
+  const saltWork: number | undefined = convert(process.env.saltWorkFactor)
   //config.get<number>("saltWorkFactor")
-  const salt = await bcrypt.genSalt(process.env.saltWorkFactor as any)
+  const salt = await bcrypt.genSalt(saltWork)
   const hash = await bcrypt.hash(user.password.toString(), salt)
   user.password = hash
   return next()
