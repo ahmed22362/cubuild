@@ -1,0 +1,16 @@
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+dotenv.config()
+
+// config.get<string>("JWT_PRIVATE_KEY")
+// config.get<string>("JWT_EXPIRES_IN"),
+const JWT_SECRET: string = process.env.JWT_PRIVATE_KEY as string
+export const singJWTToken = (payload: any): string => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN as string,
+  })
+}
+
+export async function verifyToken(token: string) {
+  return (await jwt.verify(token, JWT_SECRET)) as Promise<object>
+}
