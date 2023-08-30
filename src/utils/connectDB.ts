@@ -7,8 +7,12 @@ const mongodb_uri = process.env.MONGO_DB_URI as string
 const mongodb_local_uri = process.env.MONGO_DB_LOCAL_URL as string
 
 async function connectDB() {
+  var runningDB = mongodb_uri
   try {
-    await mongoose.connect(mongodb_uri)
+    if (process.env.NODE_ENV?.trim() === "development") {
+      runningDB = mongodb_local_uri
+    }
+    await mongoose.connect(runningDB)
     logger.info("db is connected successfully!")
   } catch (error) {
     logger.error(`some this wrong happened like ${error}`)

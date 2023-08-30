@@ -29,7 +29,7 @@ if (PORT !== undefined && isNaN(PORT)) {
 // Set security HTTP headers
 app.use(helmet())
 app.use(bodyParser.json())
-if (process.env.NODE_DEV?.trim() === "development") {
+if (process.env.NODE_ENV?.trim() === "development") {
   app.use(morgan("dev"))
 }
 // set rate limiter for the ips to secure from Brute-force attack
@@ -47,10 +47,14 @@ app.use(limiter)
 app.use(mongoSanitize())
 
 // Data sanitization against XSS
-app.use(sanitizeRequestData)
+// app.use(sanitizeRequestData)// i comment it because it make problem with params it return it as object object
+
+app.set("trust proxy", false)
 
 app.get("/", (req, res) => {
-  res.send("<h1>hello</h1>")
+  res.send(
+    `<h1 style="text-align:center; padding-top:100px" >Up And Running🚀</h1>`
+  )
 })
 app.listen(PORT, async () => {
   logger.info(`app is running on http://localhost:1337/`)

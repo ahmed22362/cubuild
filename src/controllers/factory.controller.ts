@@ -60,9 +60,7 @@ export const getOne = (Model: Model<any>, popOptions?: string) =>
 
     res.status(200).json({
       status: "success",
-      data: {
-        data: doc,
-      },
+      data: doc,
     })
   })
 
@@ -83,8 +81,6 @@ export const getAll = (Model: Model<any>) =>
     res.status(200).json({
       status: "success",
       results: doc.length,
-      data: {
-        data: doc,
-      },
+      data: doc,
     })
   })

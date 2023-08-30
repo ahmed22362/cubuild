@@ -1,3 +1,5 @@
+import { join } from "path"
+
 class APIFeatures {
   public query: any
   public queryString: any
@@ -11,19 +13,26 @@ class APIFeatures {
     const queryObj = { ...this.queryString }
     const excludedFields = ["page", "sort", "limit", "fields"]
     excludedFields.forEach((el) => delete queryObj[el])
-
     // 1B) Advanced filtering
     let queryStr = JSON.stringify(queryObj)
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
 
-    this.query = this.query.find(JSON.parse(queryStr))
+    const parsedObj = JSON.parse(queryStr)
+    // Check if 'title' exists in the parsed object  to make it regular expression
+    if (parsedObj.title) {
+      parsedObj.title = { $regex: parsedObj.title, $options: "i" }
+    }
+    parsedObj.description
+      ? (parsedObj.description = { $regex: parsedObj.title, $options: "i" })
+      : undefined
+
+    this.query = this.query.find(parsedObj)
 
     return this
   }
 
   sort() {
     if (this.queryString.sort) {
-      console.log(this.queryString.sort)
       const sortBy = this.queryString.sort.split(",").join(" ")
       this.query = this.query.sort(sortBy)
     } else {
@@ -48,7 +57,6 @@ class APIFeatures {
     const page = this.queryString.page * 1 || 1
     const limit = this.queryString.limit * 1 || 100
     const skip = (page - 1) * limit
-
     this.query = this.query.skip(skip).limit(limit)
 
     return this

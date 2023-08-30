@@ -25,7 +25,6 @@ productRouter
   .route("/")
   .get(getAllProduct)
   .post(validate(createProductSchema), createProduct)
-
 productRouter
   .route("/:id")
   .patch(validate(updateProductSchema), updateProduct)

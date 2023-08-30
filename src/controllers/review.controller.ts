@@ -1,5 +1,4 @@
 import { Response, NextFunction } from "express"
-import catchAsync from "../utils/catchAsync"
 import ReviewModel, { IReviewDocument } from "../models/review.model"
 import { IRequestWithUser } from "./auth.controller"
 import {
@@ -15,7 +14,7 @@ export const setProductUserIds = (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.body.product) req.body.product = req.params.product
+  if (!req.body.product) req.body.product = req.params.productId
   if (!req.body.user) req.body.user = req.user?.id
   next()
 }

@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-interface IProduct extends mongoose.Document {
+export interface IProduct extends mongoose.Document {
   title: string
   description: string
   price: number
@@ -9,6 +9,8 @@ interface IProduct extends mongoose.Document {
     name: string
     values: string[]
   }[]
+  ratingsAverage: number
+  ratingsQuantity: number
 }
 
 const productSchema = new mongoose.Schema<IProduct>(
@@ -18,6 +20,17 @@ const productSchema = new mongoose.Schema<IProduct>(
     price: { type: Number, required: true },
     images: [{ type: String }],
     options: [{ name: { type: String }, values: [{ type: String }] }],
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, "Rating must be above 1.0"],
+      max: [5, "Rating must be below 5.0"],
+      set: (val: number) => Math.round(val * 10) / 10,
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
@@ -30,6 +43,7 @@ productSchema.virtual("reviews", {
   foreignField: "product",
   localField: "_id",
 })
+
 const Product = mongoose.model<IProduct>("Product", productSchema)
 
 export default Product

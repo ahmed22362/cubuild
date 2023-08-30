@@ -1,4 +1,6 @@
 import Product from "../models/product.model"
+import ReviewModel, { IReviewDocument } from "../models/review.model"
+import mongoose from "mongoose"
 
 const dummyProducts = [
   {
@@ -154,7 +156,7 @@ const dummyProducts = [
 
 export async function insertDummyProducts() {
   try {
-    await Product.deleteMany() // Clear existing data
+    await Product.deleteMany()
 
     for (const productData of dummyProducts) {
       const product = new Product(productData)
@@ -165,5 +167,43 @@ export async function insertDummyProducts() {
     console.log("Dummy data inserted successfully.")
   } catch (error) {
     console.error("Error inserting dummy data:", error)
+  }
+}
+const NUM_REVIEWS_PER_PRODUCT = 15
+
+// Create a function to generate random ratings and review bodies
+const generateRandomReviews = (numReviews: number): IReviewDocument[] => {
+  const reviews: IReviewDocument[] = []
+  for (let i = 0; i < numReviews; i++) {
+    const rating = Math.floor(Math.random() * 5) + 1 // Random rating between 1 and 5
+    const body = `This is review #${i + 1}`
+    reviews.push({ rating, body } as IReviewDocument)
+  }
+  return reviews
+}
+
+// Insert reviews for each product
+export const insertDummyReviews = async () => {
+  try {
+    await ReviewModel.deleteMany()
+    console.log("All Previous Reviews deleted successfully!")
+    const products = await Product.find()
+    for (const product of products) {
+      const reviews = generateRandomReviews(NUM_REVIEWS_PER_PRODUCT)
+      for (const review of reviews) {
+        // Associate the review with the product and a random user
+        const user = new mongoose.Types.ObjectId("64ea4035d6bef77c1f1156d8")
+        const newReview = new ReviewModel({
+          ...review,
+          user,
+          product: product.id,
+        })
+        await newReview.save()
+      }
+    }
+
+    console.log("Reviews inserted successfully!")
+  } catch (error) {
+    console.error("Error inserting reviews:", error)
   }
 }

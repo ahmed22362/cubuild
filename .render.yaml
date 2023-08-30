@@ -1,7 +1,0 @@
-buildCommand: yarn
-build:
-  environment:
-    NODE_VERSION: 16
-
-environment:
-  NODE_VERSION: 16
