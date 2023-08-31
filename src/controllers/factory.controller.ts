@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import catchAsync from "../utils/catchAsync"
 import AppError from "../utils/AppError"
-import { Model } from "mongoose"
+import { Model, PopulateOptions } from "mongoose"
 import APIFeatures from "../utils/apiFeatures"
 
 export const deleteOne = (Model: Model<any>) =>
@@ -48,7 +48,7 @@ export const createOne = (Model: Model<any>) =>
     })
   })
 
-export const getOne = (Model: Model<any>, popOptions?: string) =>
+export const getOne = (Model: Model<any>, popOptions?: PopulateOptions) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let query = Model.findById(req.params.id)
     if (popOptions) query = query.populate(popOptions)
@@ -64,13 +64,15 @@ export const getOne = (Model: Model<any>, popOptions?: string) =>
     })
   })
 
-export const getAll = (Model: Model<any>) =>
+export const getAll = (Model: Model<any>, popOptions?: PopulateOptions) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // To allow for nested GET reviews on tour (hack)
     let filter: any = {}
     if (req.params.productId) filter = { product: req.params.productId }
-
-    const features = new APIFeatures(Model.find(filter), req.query)
+    if (req.body.user) filter = { user: req.body.user }
+    let query = Model.find(filter)
+    if (popOptions) query = query.populate(popOptions)
+    const features = new APIFeatures(query, req.query)
       .filter()
       .sort()
       .limitFields()

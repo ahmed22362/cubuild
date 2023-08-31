@@ -5,6 +5,7 @@ import { IRequestWithUser } from "./auth.controller"
 import Cart, { ICart } from "../models/cart.model"
 import Product from "../models/product.model"
 import AppError from "../utils/AppError"
+import { getAll, getOne } from "./factory.controller"
 
 export const createOrder = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
@@ -43,6 +44,16 @@ export const createOrder = catchAsync(
     res.status(200).json({ status: "success", data: order })
   }
 )
+
+export const getAllUserOrders = getAll(Order, {
+  path: "items.product",
+  select: "title price images",
+})
+export const getOrder = getOne(Order, {
+  path: "items.product",
+  select: "title price images",
+})
+
 // Utility function to calculate order total
 const calculateTotal = async function (cart: ICart) {
   let total = 0
