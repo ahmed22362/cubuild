@@ -6,7 +6,7 @@ import dotenv from "dotenv"
 import rateLimit from "express-rate-limit"
 import mongoSanitize from "express-mongo-sanitize"
 
-import sanitizeRequestData from "./utils/sanitize"
+import sanitizeRequestData from "./middleware/sanitize"
 import connectDB from "./utils/connectDB"
 import routes from "./routes"
 import logger from "./utils/logger"
@@ -50,6 +50,18 @@ app.use(mongoSanitize())
 // app.use(sanitizeRequestData)// i comment it because it make problem with params it return it as object object
 
 app.set("trust proxy", false)
+app.use((req, res, next) => {
+  res.set("Access-Control-Allow-Origin", "*")
+  res.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE,PATCH, OPTIONS"
+  )
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200)
+  }
+  next()
+})
 
 app.get("/", (req, res) => {
   res.send(

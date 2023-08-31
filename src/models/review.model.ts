@@ -1,5 +1,5 @@
 import mongoose, { Query } from "mongoose"
-import Product, { IProduct } from "./product.model"
+import Product from "./product.model"
 
 export interface IReviewDocument extends mongoose.Document {
   rating: number
@@ -12,9 +12,6 @@ interface IReviewModel extends mongoose.Model<IReviewDocument> {
   calcAverageRatings(productId: mongoose.Types.ObjectId): Promise<void>
 }
 
-interface IReviewQuery extends mongoose.Query<{}, {}, "find"> {
-  temp?: any
-}
 const reviewSchema = new mongoose.Schema<IReviewDocument>(
   {
     rating: { type: Number, default: 1, required: true, min: 1, max: 5 },
@@ -76,9 +73,9 @@ reviewSchema.index({ user: 1, product: 1 }, { unique: true })
 // External variable to store data between pre and post hooks
 var preFindReview: IReviewDocument | null = null
 
-// update the product statics in case review updated of deleted
+// update the product statics in case review updated or deleted
 reviewSchema.pre(/^findOneAnd/, async function (next) {
-  // in pre find this keyWord refer to the query
+  // in pre find "this" keyWord refers to the query
   // so to get the current document we make findOne on the model
   const query: Query<IReviewDocument | null, IReviewDocument> = this as any
   preFindReview = await query.model.findOne(query.getQuery())
@@ -94,26 +91,6 @@ reviewSchema.post(/^findOneAnd/, async function () {
     )
   }
 })
-
-/*
-reviewSchema.pre(
-  /^findOneAnd/,
-  async function (this: Query<any, IReviewDocument | null>, next) {
-    this._tempReview = (await this.findOne()) as IReviewDocument
-    next()
-  }
-)
-
-reviewSchema.post(
-  /^findOneAnd/,
-  async function (this: Query<any, IReviewDocument | null>, doc) {
-    if (this._tempReview) {
-      const ReviewModel = this.model("Review") // Access the model with type
-      await ReviewModel.calcAverageRatings(this._tempReview.tour)
-    }
-  }
-)
-*/
 
 const ReviewModel = mongoose.model<IReviewDocument, IReviewModel>(
   "Review",

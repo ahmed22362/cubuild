@@ -6,7 +6,7 @@ import {
   getProduct,
   updateProduct,
 } from "../controllers/product.controller"
-import validate from "../utils/validateSchema"
+import validate from "../middleware/validateSchema"
 import {
   getProductSchema,
   updateProductSchema,
@@ -15,11 +15,14 @@ import {
 } from "../schema/product.schema"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import ReviewRouter from "./review.routes"
+import cartRouter from "./cart.routes"
 
 const productRouter = Router()
 
 //nest route with reviews
 productRouter.use("/:productId/reviews", ReviewRouter)
+//nest route with cart
+productRouter.use("/:productId/cart", cartRouter)
 
 productRouter
   .route("/")

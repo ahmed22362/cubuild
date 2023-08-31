@@ -94,6 +94,7 @@ userSchema.pre("save", async function (next) {
   }
   const saltWork: number | undefined = convert(process.env.saltWorkFactor)
   //config.get<number>("saltWorkFactor")
+  // use random salt use UUID TODO
   const salt = await bcrypt.genSalt(saltWork)
   const hash = await bcrypt.hash(user.password.toString(), salt)
   user.password = hash
@@ -104,7 +105,8 @@ userSchema.pre("save", async function (next) {
   if (!user.isModified("password") || user.isNew) {
     return next()
   }
-  user.passwordChangedAt = Date.now() - 1000 // subtract one sec from this time so the it always before the token we issued after this is assigned
+  // subtract one sec from this time so the it always before the token we issued after this is assigned
+  user.passwordChangedAt = Date.now() - 1000
   next()
 })
 userSchema.methods.comparePassword = async function (

@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express"
-import ReviewModel, { IReviewDocument } from "../models/review.model"
+import ReviewModel from "../models/review.model"
 import { IRequestWithUser } from "./auth.controller"
 import {
   createOne,

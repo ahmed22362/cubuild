@@ -11,7 +11,7 @@ import {
   getMe,
 } from "../controllers/user.controller"
 import { protect, restrictTo } from "../controllers/auth.controller"
-import validate from "../utils/validateSchema"
+import validate from "../middleware/validateSchema"
 import { updateMeSchema } from "../schema/user.schema"
 
 const userRouter = Router()

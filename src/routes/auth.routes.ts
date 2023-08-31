@@ -14,7 +14,7 @@ import {
   resetPassword,
   updatePassword,
 } from "../controllers/auth.controller"
-import validate from "../utils/validateSchema"
+import validate from "../middleware/validateSchema"
 import { protect } from "../controllers/auth.controller"
 const authRouter = Router()
 

@@ -1,5 +1,5 @@
 import { Router } from "express"
-import validate from "../utils/validateSchema"
+import validate from "../middleware/validateSchema"
 import { createReviewSchema } from "../schema/review.schema"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import {
