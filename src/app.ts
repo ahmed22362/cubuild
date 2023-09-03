@@ -6,7 +6,6 @@ import dotenv from "dotenv"
 import rateLimit from "express-rate-limit"
 import mongoSanitize from "express-mongo-sanitize"
 
-import sanitizeRequestData from "./middleware/sanitize"
 import connectDB from "./utils/connectDB"
 import routes from "./routes"
 import logger from "./utils/logger"

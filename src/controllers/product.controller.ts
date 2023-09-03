@@ -8,8 +8,15 @@ import {
 } from "./factory.controller"
 
 export const createProduct = createOne(Product)
-export const getAllProduct = getAll(Product)
+// undefined is the populationOptions
+export const getAllProduct = getAll(
+  Product,
+  undefined,
+  "title description coverImage price"
+)
 
-export const getProduct = getOne(Product, "reviews")
+export const getProduct = getOne(Product, {
+  path: "reviews",
+})
 export const updateProduct = updateOne(Product)
 export const deleteProduct = deleteOne(Product)

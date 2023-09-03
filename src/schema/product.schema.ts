@@ -10,6 +10,7 @@ const payload = {
         .string({ required_error: "Description is required" })
         .min(120, "Description should be at least 120 characters long"),
       price: z.number({ required_error: "Price is required" }),
+      coverImage: z.string({ required_error: "Price is required" }),
       images: z.array(z.string()),
       options: z.array(
         z.object({ name: z.string(), values: z.array(z.string()) })

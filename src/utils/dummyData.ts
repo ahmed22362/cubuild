@@ -7,7 +7,12 @@ const dummyProducts = [
     title: "3D Printed Phone Stand",
     description: "A stylish phone stand made using 3D printing technology.",
     price: 12.99,
-    images: ["phone_stand_1.jpg", "phone_stand_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    ],
     options: [
       {
         name: "Color",
@@ -23,7 +28,12 @@ const dummyProducts = [
     title: "3D Printed Keychain",
     description: "A personalized keychain created through 3D printing.",
     price: 5.99,
-    images: ["keychain_1.jpg", "keychain_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    ],
     options: [
       {
         name: "Color",
@@ -35,7 +45,12 @@ const dummyProducts = [
     title: "3D Printed Mini Figurine",
     description: "A small 3D printed figurine perfect for decoration.",
     price: 8.99,
-    images: ["figurine_1.jpg", "figurine_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    ],
     options: [
       {
         name: "Character",
@@ -63,7 +78,13 @@ const dummyProducts = [
     title: "3D Printed Plant Pot",
     description: "Decorative plant pot crafted using 3D printing techniques.",
     price: 14.99,
-    images: ["plant_pot_1.jpg", "plant_pot_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    ],
     options: [
       {
         name: "Color",
@@ -79,7 +100,12 @@ const dummyProducts = [
     title: "3D Printed Puzzle",
     description: "A challenging puzzle made using 3D printed pieces.",
     price: 10.99,
-    images: ["puzzle_1.jpg", "puzzle_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    ],
     options: [
       {
         name: "Difficulty",
@@ -96,7 +122,12 @@ const dummyProducts = [
     description:
       "An organizer for your desk items created through 3D printing.",
     price: 17.99,
-    images: ["organizer_1.jpg", "organizer_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    ],
     options: [
       {
         name: "Color",
@@ -112,7 +143,12 @@ const dummyProducts = [
     title: "3D Printed Cookie Cutter Set",
     description: "Set of cookie cutters with various 3D printed shapes.",
     price: 9.99,
-    images: ["cookie_cutter_1.jpg", "cookie_cutter_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    ],
     options: [
       {
         name: "Shapes",
@@ -140,7 +176,12 @@ const dummyProducts = [
     title: "3D Printed Wall Art",
     description: "Artistic wall decorations produced using 3D printing.",
     price: 22.99,
-    images: ["wall_art_1.jpg", "wall_art_2.jpg"],
+    coverImage:
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/msqc93tv-removebg-preview-1693678820278.png",
+    images: [
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/fmoq5ydh-removebg-preview-1693678820519.png",
+      "https://res.cloudinary.com/dibfyga2v/image/upload/v1693678822/product-images/image_6-removebg-preview-1693678820276.png",
+    ],
     options: [
       {
         name: "Design",

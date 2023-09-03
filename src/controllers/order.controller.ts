@@ -39,7 +39,7 @@ export const createOrder = catchAsync(
     // populate products before it send
     await order.populate({
       path: "items.product",
-      select: "title price images",
+      select: "title price coverImage",
     })
     res.status(200).json({ status: "success", data: order })
   }
@@ -47,11 +47,11 @@ export const createOrder = catchAsync(
 
 export const getAllUserOrders = getAll(Order, {
   path: "items.product",
-  select: "title price images",
+  select: "title price coverImage",
 })
 export const getOrder = getOne(Order, {
   path: "items.product",
-  select: "title price images",
+  select: "title price coverImage",
 })
 
 // Utility function to calculate order total

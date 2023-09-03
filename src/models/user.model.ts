@@ -94,8 +94,15 @@ userSchema.pre("save", async function (next) {
   }
   const saltWork: number | undefined = convert(process.env.saltWorkFactor)
   //config.get<number>("saltWorkFactor")
-  // use random salt use UUID TODO
-  const salt = await bcrypt.genSalt(saltWork)
+  // generate the salt round
+  // Get random number between 0 (inclusive) and 1 (exclusive)
+  Math.random()
+
+  // Scale random number between min and max
+  const min = 10
+  const max = 13
+  const random = Math.random() * (max - min) + min
+  const salt = await bcrypt.genSalt(random)
   const hash = await bcrypt.hash(user.password.toString(), salt)
   user.password = hash
   return next()

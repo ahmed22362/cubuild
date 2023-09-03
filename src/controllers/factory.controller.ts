@@ -38,7 +38,7 @@ export const updateOne = (Model: Model<any>) =>
 
 export const createOne = (Model: Model<any>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body)
+    if (req.file) req.body.coverImage = req.file.path
     const doc = await Model.create(req.body)
     res.status(201).json({
       status: "success",
@@ -64,13 +64,20 @@ export const getOne = (Model: Model<any>, popOptions?: PopulateOptions) =>
     })
   })
 
-export const getAll = (Model: Model<any>, popOptions?: PopulateOptions) =>
+export const getAll = (
+  Model: Model<any>,
+  popOptions?: PopulateOptions,
+  selectOptions?: string
+) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // To allow for nested GET reviews on tour (hack)
     let filter: any = {}
     if (req.params.productId) filter = { product: req.params.productId }
     if (req.body.user) filter = { user: req.body.user }
+
     let query = Model.find(filter)
+
+    if (selectOptions) query = query.select(selectOptions)
     if (popOptions) query = query.populate(popOptions)
     const features = new APIFeatures(query, req.query)
       .filter()

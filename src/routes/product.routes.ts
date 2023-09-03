@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import {
   createProduct,
   deleteProduct,
@@ -16,8 +16,40 @@ import {
 import { protect, restrictTo } from "../controllers/auth.controller"
 import ReviewRouter from "./review.routes"
 import cartRouter from "./cart.routes"
+import parser from "../utils/multer.cloudinary"
+import AppError from "../utils/AppError"
+
+interface Files {
+  images: Express.Multer.File[]
+  coverImage: Express.Multer.File[]
+}
 
 const productRouter = Router()
+
+const setImagesUrlToBody = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.files) {
+    return next(new AppError(400, "Please provide files to upload"))
+  }
+  const files = req.files as unknown as Files
+  if (files?.coverImage) req.body.coverImage = files.coverImage[0].path
+  if (files?.images) {
+    req.body.images = files.images.map((file) => file.path)
+  }
+  // convert it to number because form-data in postman send it as string
+  if (req.body.price) req.body.price = req.body.price * 1
+  next()
+}
+const uploadMultiple = parser.fields([
+  {
+    name: "coverImage",
+    maxCount: 1,
+  },
+  { name: "images", maxCount: 4 },
+])
 
 //nest route with reviews
 productRouter.use("/:productId/reviews", ReviewRouter)
@@ -27,10 +59,20 @@ productRouter.use("/:productId/cart", cartRouter)
 productRouter
   .route("/")
   .get(getAllProduct)
-  .post(validate(createProductSchema), createProduct)
+  .post(
+    uploadMultiple,
+    setImagesUrlToBody,
+    validate(createProductSchema),
+    createProduct
+  )
 productRouter
   .route("/:id")
-  .patch(validate(updateProductSchema), updateProduct)
+  .patch(
+    uploadMultiple,
+    setImagesUrlToBody,
+    validate(updateProductSchema),
+    updateProduct
+  )
   .get(validate(getProductSchema), getProduct)
   .delete(
     protect,
