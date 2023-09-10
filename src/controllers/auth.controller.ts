@@ -8,9 +8,10 @@ import User, {
 import { LoginUserSchemaBody } from "../schema/user.schema"
 import AppError from "../utils/AppError"
 import { singJWTToken, verifyToken } from "../utils/jwt"
-import sendForgetPasswordEmail from "../utils/sendmail"
+import Mail from "../utils/sendmail"
 import crypto from "crypto"
 import dotenv from "dotenv"
+import logger from "../utils/logger"
 dotenv.config()
 
 export interface IRequestWithUser extends Request {
@@ -95,6 +96,9 @@ export const protect = catchAsync(
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1]
+    } else if (req.cookies.token) {
+      logger.info(`yes in cookies`)
+      token = req.cookies.token
     }
     if (!token) {
       return next(
@@ -156,7 +160,8 @@ export const forgetPassword = catchAsync(
       "host"
     )}/api/v1/user/auth/resetPassword/${resetToken}`
     try {
-      await sendForgetPasswordEmail(resetURL, user.name, user.email)
+      const mail = new Mail(user.email, user.name, resetURL)
+      await mail.sendForgetPassword()
       res.status(200).json({ status: "success", message: "token sent to mail" })
     } catch (e) {
       user.passwordResetToken = undefined

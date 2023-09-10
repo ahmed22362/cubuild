@@ -9,12 +9,16 @@ import {
   deleteOne,
 } from "./factory.controller"
 
-export const setProductUserIds = (
+export const setProductORUserIds = (
   req: IRequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.body.product) req.body.product = req.params.productId
+  if (!req.body.product) {
+    if (req.params.productId) {
+      req.body.product = req.params.productId
+    }
+  }
   if (!req.body.user) req.body.user = req.user?.id
   next()
 }

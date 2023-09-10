@@ -7,7 +7,7 @@ import {
   getReviews,
   getReview,
   updateReview,
-  setProductUserIds,
+  setProductORUserIds,
   deleteReview,
 } from "../controllers/review.controller"
 const ReviewRouter = Router({ mergeParams: true })
@@ -18,6 +18,6 @@ ReviewRouter.route("/:id")
   .delete(deleteReview)
 ReviewRouter.route("/")
   .get(getReviews)
-  .post(protect, restrictTo("user"), setProductUserIds, createReview)
+  .post(protect, restrictTo("user"), setProductORUserIds, createReview)
 
 export default ReviewRouter

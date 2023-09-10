@@ -25,10 +25,9 @@ export const createOrder = catchAsync(
       totalCost: total,
     })
     if (!order) {
-      return res.status(400).json({
-        status: "fail",
-        message: "There is problem while creating the order!",
-      })
+      return next(
+        new AppError(400, "There is problem while creating the order!")
+      )
     }
     // Empty the cart after adding them to order
     cart.items = []

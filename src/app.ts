@@ -5,6 +5,7 @@ import helmet from "helmet"
 import dotenv from "dotenv"
 import rateLimit from "express-rate-limit"
 import mongoSanitize from "express-mongo-sanitize"
+import cookieParser from "cookie-parser"
 
 import connectDB from "./utils/connectDB"
 import routes from "./routes"
@@ -28,6 +29,7 @@ if (PORT !== undefined && isNaN(PORT)) {
 // Set security HTTP headers
 app.use(helmet())
 app.use(bodyParser.json())
+app.use(cookieParser())
 if (process.env.NODE_ENV?.trim() === "development") {
   app.use(morgan("dev"))
 }

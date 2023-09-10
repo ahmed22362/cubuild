@@ -7,17 +7,45 @@ import {
   getCart,
 } from "../controllers/cart.controller"
 import { protect } from "../controllers/auth.controller"
-import { setProductUserIds } from "../controllers/review.controller"
+import { setProductORUserIds } from "../controllers/review.controller"
+import validate from "../middleware/validateSchema"
+import {
+  AddItemToCartSchema,
+  deleteItemFromCartSchema,
+  getCartSchema,
+  updateItemFromCartSchema,
+} from "../schema/cart.schema"
 
 const cartRouter = Router({ mergeParams: true })
 
-cartRouter.get("/", protect, getCart)
+cartRouter.get(
+  "/",
+  protect,
+  setProductORUserIds,
+  validate(getCartSchema),
+  getCart
+)
 cartRouter
   .route("/item/:itemId")
-  .delete(protect, setProductUserIds, deleteItemFromCart)
-  .patch(protect, setProductUserIds, UpdateItemFromCart)
+  .delete(
+    protect,
+    setProductORUserIds,
+    validate(deleteItemFromCartSchema),
+    deleteItemFromCart
+  )
+  .patch(
+    protect,
+    setProductORUserIds,
+    validate(updateItemFromCartSchema),
+    UpdateItemFromCart
+  )
 cartRouter
   .route("/item")
-  .post(protect, setProductUserIds, addItemToCart)
+  .post(
+    protect,
+    setProductORUserIds,
+    validate(AddItemToCartSchema),
+    addItemToCart
+  )
   .delete(protect, deleteAllItemsFromCart)
 export default cartRouter

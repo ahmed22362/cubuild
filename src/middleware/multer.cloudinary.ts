@@ -2,8 +2,7 @@ const cloudinary = require("cloudinary").v2
 import { CloudinaryStorage } from "multer-storage-cloudinary"
 import multer from "multer"
 import { Request } from "express"
-import AppError from "./AppError"
-import sharp from "sharp"
+import AppError from "../utils/AppError"
 
 require("dotenv").config()
 
@@ -18,7 +17,7 @@ interface MyParams {
   public_id?: (req: Request, file: Express.Multer.File) => string
 }
 
-const fileFilter = async (
+const imageFilter = async (
   req: Request,
   file: Express.Multer.File,
   cb: Function
@@ -34,6 +33,34 @@ const fileFilter = async (
     cb(null, true)
   }
 }
+const userFileFilter = async (
+  req: Request,
+  file: Express.Multer.File,
+  cb: Function
+) => {
+  const ext = file.mimetype.split("/")[1]
+  const accepted = [
+    "stl",
+    "obj",
+    "octet-stream",
+    "vnd.dwg",
+    "zip",
+    "vnd.rar",
+    "svg",
+  ]
+  console.log(file.mimetype, accepted.includes(ext))
+  if (!accepted.includes(ext)) {
+    cb(
+      new AppError(
+        400,
+        `Only ["stl", "obj", "factory", "octet-stream","vnd.dwg", "zip", "rar","svg"] files allowed`
+      ),
+      false
+    )
+  } else {
+    cb(null, true)
+  }
+}
 
 const cloudStorage = new CloudinaryStorage({
   cloudinary,
@@ -44,6 +71,13 @@ const cloudStorage = new CloudinaryStorage({
   } as MyParams,
 })
 
-const parser = multer({ storage: cloudStorage, fileFilter })
+const parser = multer({ storage: cloudStorage, fileFilter: imageFilter })
+
+// file upload filter
+const memoryStorage = multer.memoryStorage()
+export const memoryMulter = multer({
+  storage: memoryStorage,
+  fileFilter: userFileFilter,
+})
 
 export default parser

@@ -16,7 +16,7 @@ import {
 import { protect, restrictTo } from "../controllers/auth.controller"
 import ReviewRouter from "./review.routes"
 import cartRouter from "./cart.routes"
-import parser from "../utils/multer.cloudinary"
+import parser from "../middleware/multer.cloudinary"
 import AppError from "../utils/AppError"
 
 interface Files {

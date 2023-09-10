@@ -13,6 +13,77 @@ export interface MailInterface {
   text?: string
   html: string
 }
+interface ITemplate {
+  html: string
+  text: string
+}
+
+class Mail {
+  to: string
+  name: string
+  url?: string
+  constructor(to: string, name: string, url?: string) {
+    this.to = to
+    this.name = name
+    this.url = url
+  }
+  newTransporter() {
+    if (process.env.NODE_ENV === "production") {
+      return nodemailer.createTransport({
+        host: process.env.MAIL_HOST as any,
+        port: process.env.MAIL_PORT as any,
+        secure: true,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      })
+    } else {
+      return nodemailer.createTransport({
+        host: process.env.MAIL_HOST as any,
+        port: process.env.MAIL_PORT as any,
+        secure: true,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      })
+    }
+  }
+
+  async send(template: ITemplate, subject: string) {
+    let html = template.html
+    const mailOptions = {
+      from: "HR <ceo@codegate.info>", // sender address
+      to: this.to, // list of receivers
+      subject: subject, // Subject line
+      text: template.text, // plain text body
+      html: template.html, // html body
+    }
+    return await this.newTransporter().sendMail(mailOptions)
+  }
+
+  async sendWelcome() {
+    const welcomeTemplate = generateWelcomeTemplate(this.name)
+    let info = await this.send(welcomeTemplate, "Welcome To CuBuild")
+    if (process.env.NODE_ENV === "development") {
+      console.log("Message sent: %s", info.messageId)
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+  }
+  async sendForgetPassword() {
+    const forgetTemplate = generateResetPasswordTemplate(
+      this.url as string,
+      this.name
+    )
+    let info = await this.send(forgetTemplate, "Welcome To CuBuild")
+    if (process.env.NODE_ENV === "development") {
+      console.log("Message sent: %s", info.messageId)
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+  }
+}
+
 let testTransporter = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
   port: 2525,
@@ -21,53 +92,5 @@ let testTransporter = nodemailer.createTransport({
     pass: "e879316559a500",
   },
 })
-// config.get<string>("MAIL_HOST")
-// config.get<number>("MAIL_PORT")
-// config.get<string>("MAIL_USER")
-// config.get<string>("MAIL_PASSWORD")
-let transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST as any,
-  port: process.env.MAIL_PORT as any,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASSWORD,
-  },
-})
 
-async function sendForgetPasswordEmail(
-  resetURL: string,
-  name: string,
-  email: string
-) {
-  // create reusable transporter object using Zoho SMTP
-  // send mail with defined transport object
-  const emailTemplate = generateResetPasswordTemplate(resetURL, name)
-  let info = await testTransporter.sendMail({
-    from: '"Ahmed Hamada" <ceo@codegate.info>', // sender address
-    to: email, // list of receivers
-    subject: "Your CuBuild password reset token", // Subject line
-    text: emailTemplate.text, // plain text body
-    html: emailTemplate.html, // html body
-  })
-
-  console.log("Message sent: %s", info.messageId)
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
-}
-
-export async function sendWelcomeUser(name: string, email: string) {
-  // create reusable transporter object using Zoho SMTP
-  // send mail with defined transport object
-  const emailTemplate = generateWelcomeTemplate(name)
-  let info = await transporter.sendMail({
-    from: '"Ahmed Hamada" <ceo@codegate.info>', // sender address
-    to: email, // list of receivers
-    subject: "Welcome To CuBuild", // Subject line
-    html: emailTemplate.html, // html body
-  })
-
-  console.log("Message sent: %s", info.messageId)
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
-}
-
-export default sendForgetPasswordEmail
+export default Mail

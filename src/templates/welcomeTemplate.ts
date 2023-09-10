@@ -68,7 +68,7 @@ const greetingTemplate = function (name: string) {
     
     </body>
     </html>`
-
-  return { html }
+  const text: string = `Welcome`
+  return { html, text }
 }
 export default greetingTemplate

@@ -8,6 +8,7 @@ import reviewRouter from "./routes/review.routes"
 import cartRouter from "./routes/cart.routes"
 import orderRouter from "./routes/order.routes"
 import wishlistRouter from "./routes/wishlist.routes"
+import FileCart from "./routes/fileCart.router"
 
 function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => {
@@ -20,6 +21,7 @@ function routes(app: Express) {
   app.use("/api/v1/cart", cartRouter)
   app.use("/api/v1/wishlist", wishlistRouter)
   app.use("/api/v1/order", orderRouter)
+  app.use("/api/v1/fileCart", FileCart)
   app.all("*", (req, res, next) => {
     next(new AppError(404, `Can't find ${req.originalUrl} on this server!`))
   })
