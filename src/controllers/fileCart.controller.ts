@@ -10,10 +10,6 @@ import B2Client from "../utils/b2client"
 import AppError from "../utils/AppError"
 dotenv.config()
 
-const keyId = process.env.B2_KEY_ID || ""
-const applicationKey = process.env.B2_APPLICATION_KEY || ""
-const b2client = new B2Client(keyId, applicationKey)
-
 export const uploadUserFile = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const { options, description } = req.body
@@ -45,16 +41,19 @@ export const getUserFileCart = catchAsync(
         new AppError(400, "something wrong while getting custom orders")
       )
     }
-    res.status(200).json({ status: "success", data: fileCart })
+    res
+      .status(200)
+      .json({ status: "success", length: fileCart.length, data: fileCart })
   }
 )
 
 export const getFileCartItem = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const { FileCarItemId } = req.params
+    const { FileCartItemId } = req.params
+    console.log(req.body, req.params)
     const fileCartItem = await FileCartModel.findOne({
-      _id: FileCarItemId,
-      user: req.user?.id,
+      _id: FileCartItemId,
+      user: req.body.user,
     })
     if (!fileCartItem) {
       return next(new AppError(400, "Can''t find item with this id!"))
@@ -67,6 +66,7 @@ export const userUpdateFileCartItem = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { FileCartItemId } = req.params
     const { options, user } = req.body
+    console.log(user, FileCartItemId)
     const FileCartItem = await FileCartModel.findOne({
       _id: FileCartItemId,
       user: user,
@@ -92,13 +92,29 @@ export const userUpdateFileCartItem = catchAsync(
 
 export const deleteFileFromFileCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartItemId, fileName, fileId } = req.body
+    const { FileCartItemId } = req.params
+    const { fileName, b2FileId, user } = req.body
+    const keyId = process.env.B2_KEY_ID || ""
+    const applicationKey = process.env.B2_APPLICATION_KEY || ""
+    const b2client = new B2Client(keyId, applicationKey)
+    console.log(fileName, b2FileId, user)
+    // await b2client.deleteFile(b2FileId, fileName)
+
     const updatedFileCart = (await FileCartModel.findByIdAndUpdate(
-      { _id: FileCartItemId },
-      { $pull: { files: { b2FileId: fileId } } },
+      { _id: FileCartItemId, user: user },
+      { $pull: { files: { b2FileId: b2FileId } } },
       { new: true }
     )) as IFileCart
-    await b2client.deleteFile(fileId, fileName)
+    if (updatedFileCart.files.length === 0) {
+      await FileCartModel.deleteOne({ _id: FileCartItemId })
+      return res
+        .status(200)
+        .json({
+          status: "success",
+          message:
+            "file removed successfully and the whole document removed because there are no files now!",
+        })
+    }
     res.status(200).json({
       status: "success",
       message: "file removed successfully",
@@ -107,28 +123,41 @@ export const deleteFileFromFileCart = catchAsync(
   }
 )
 export const addFilesToFileCartItem = catchAsync(
-  async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const { FileCartId, fileName, fileId } = req.body
-    const updatedFileCart = (await FileCartModel.findByIdAndUpdate(
-      { _id: FileCartId },
-      { $pull: { files: { b2FileId: fileId } } },
-      { new: true }
-    )) as IFileCart
-    await b2client.deleteFile(fileId, fileName)
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { FileCartItemId } = req.params
+    const { user } = req.body
+    const files = res.locals.fileData.map((file: any) => {
+      return {
+        fileName: file.fileName,
+        b2FileUrl: file.fileUrl,
+        b2FileId: file.fileId,
+      }
+    })
+
+    const fileCart = await FileCartModel.findOne({
+      _id: FileCartItemId,
+      user: user,
+    })
+    if (!fileCart) {
+      return next(new AppError(400, "Can't find file cart item with this id"))
+    }
+    // concat return new array concatenated the two arrays
+    fileCart.files = fileCart.files.concat(files)
+    await fileCart.save()
     res.status(200).json({
       status: "success",
       message: "file removed successfully",
-      data: updatedFileCart,
+      data: fileCart,
     })
   }
 )
 
 export const adminUpdateFileCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartId } = req.params
+    const { FileCartItemId } = req.params
     const { user, status } = req.body
     const updatedFileCart = await FileCartModel.findOneAndUpdate(
-      { _id: FileCartId, user: user },
+      { _id: FileCartItemId, user: user },
       {
         status: status,
       },

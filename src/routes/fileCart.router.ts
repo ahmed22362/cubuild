@@ -5,6 +5,8 @@ import {
   userUpdateFileCartItem,
   uploadUserFile,
   adminUpdateFileCart,
+  addFilesToFileCartItem,
+  deleteFileFromFileCart,
 } from "../controllers/fileCart.controller"
 import { memoryMulter } from "../middleware/multer.cloudinary"
 import { uploadToB2 } from "../middleware/uploadB2"
@@ -19,10 +21,13 @@ import { setProductORUserIds } from "../controllers/review.controller"
 const FileCartRouter = Router()
 
 const upload = memoryMulter
+
+// Not working i do'nt know why!
+// FileCartRouter.use(protect, setProductORUserIds)
 FileCartRouter.route("/")
   .post(
-    protect,
     upload.any(),
+    protect,
     setProductORUserIds,
     validate(createFileCartSchema),
     uploadToB2,
@@ -34,13 +39,24 @@ FileCartRouter.route("/")
     validate(getFileCartSchema),
     getUserFileCart
   )
-FileCartRouter.route("/:fileCartId")
+FileCartRouter.route("/:FileCartItemId")
   .get(protect, setProductORUserIds, getFileCartItem)
-  .patch(protect, userUpdateFileCartItem)
-FileCartRouter.route(":fileCartId/admin").patch(
+  .patch(protect, setProductORUserIds, userUpdateFileCartItem)
+
+FileCartRouter.route("/:FileCartItemId/file")
+  .post(
+    upload.any(),
+    protect,
+    setProductORUserIds,
+    uploadToB2,
+    addFilesToFileCartItem
+  )
+  .patch(protect, setProductORUserIds, deleteFileFromFileCart)
+
+FileCartRouter.route(":FileCartItemId/admin").patch(
   protect,
-  restrictTo("admin"),
   setProductORUserIds,
+  restrictTo("admin"),
   adminUpdateFileCart
 )
 export default FileCartRouter

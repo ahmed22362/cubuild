@@ -4,6 +4,7 @@ import Product from "./product.model"
 export interface IReviewDocument extends mongoose.Document {
   rating: number
   body: string
+  title: string
   user: mongoose.Types.ObjectId
   product: mongoose.Types.ObjectId
   _tempReview: any
@@ -17,6 +18,7 @@ const reviewSchema = new mongoose.Schema<IReviewDocument>(
     rating: { type: Number, default: 1, required: true, min: 1, max: 5 },
     body: { type: String },
     user: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
+    title: { type: String },
     product: {
       type: mongoose.Schema.ObjectId,
       ref: "Product",

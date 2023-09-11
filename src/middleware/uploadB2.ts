@@ -25,7 +25,6 @@ export const uploadToB2 = catchAsync(
       return await b2client.uploadFile(file)
     })
     const fileData = await Promise.all(uploadPromises)
-    console.log(fileData)
     res.locals.fileData = fileData
     next()
   }

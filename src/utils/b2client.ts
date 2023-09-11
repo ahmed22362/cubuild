@@ -1,10 +1,7 @@
 import B2 from "backblaze-b2"
 import dotenv from "dotenv"
-
-import { Readable } from "node:stream"
 import AppError from "./AppError"
 import logger from "./logger"
-import { IFileItem } from "../models/fileCart.model"
 dotenv.config()
 
 export default class B2Client {
@@ -64,9 +61,17 @@ export default class B2Client {
     }
   }
   async deleteFile(fileId: string, fileName: string) {
-    await this.b2.deleteFileVersion({
-      fileId,
-      fileName,
-    })
+    await this.getAuthToken()
+    try {
+      await this.b2.deleteFileVersion({
+        fileId,
+        fileName,
+      })
+    } catch (error) {
+      throw new AppError(
+        400,
+        "there is some wrong happened while deleting the file!"
+      )
+    }
   }
 }
