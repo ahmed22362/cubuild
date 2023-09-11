@@ -1,5 +1,12 @@
 import mongoose from "mongoose"
 
+export interface IReviewRating {
+  rate_1_count: number
+  rate_2_count: number
+  rate_3_count: number
+  rate_4_count: number
+  rate_5_count: number
+}
 export interface IProduct extends mongoose.Document {
   title: string
   description: string
@@ -12,6 +19,7 @@ export interface IProduct extends mongoose.Document {
   }[]
   ratingsAverage: number
   ratingsQuantity: number
+  ratingsGroup: IReviewRating
 }
 
 const productSchema = new mongoose.Schema<IProduct>(
@@ -32,6 +40,13 @@ const productSchema = new mongoose.Schema<IProduct>(
     ratingsQuantity: {
       type: Number,
       default: 0,
+    },
+    ratingsGroup: {
+      rate_1_count: Number,
+      rate_2_count: Number,
+      rate_3_count: Number,
+      rate_4_count: Number,
+      rate_5_count: Number,
     },
   },
   {

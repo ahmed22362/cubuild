@@ -1,5 +1,6 @@
 import mongoose, { Query } from "mongoose"
-import Product from "./product.model"
+import Product, { IProduct } from "./product.model"
+import AppError from "../utils/AppError"
 
 export interface IReviewDocument extends mongoose.Document {
   rating: number
@@ -11,6 +12,7 @@ export interface IReviewDocument extends mongoose.Document {
 }
 interface IReviewModel extends mongoose.Model<IReviewDocument> {
   calcAverageRatings(productId: mongoose.Types.ObjectId): Promise<void>
+  calcRatingsGroups(productId: mongoose.Types.ObjectId): Promise<void>
 }
 
 const reviewSchema = new mongoose.Schema<IReviewDocument>(
@@ -63,10 +65,47 @@ reviewSchema.statics.calcAverageRatings = async function (productId) {
     })
   }
 }
+reviewSchema.statics.calcRatingsGroups = async function (productId) {
+  try {
+    const stat = await this.aggregate([
+      {
+        $match: { product: productId },
+      },
+      {
+        $group: {
+          _id: "$rating",
+          count: { $sum: 1 },
+          ratingValue: { $first: "$rating" },
+        },
+      },
+    ])
+    const product = await Product.findById(productId)
+
+    if (!product) {
+      throw new Error(`Product with ID ${productId} not found.`)
+    }
+
+    const ratingsCount: any = {}
+
+    stat.forEach((item) => {
+      ratingsCount[`rate_${item._id}_count`] = item.count || 0
+    })
+
+    product.ratingsGroup = ratingsCount
+
+    await product.save()
+
+    console.log(`Ratings groups updated for product: ${product.title}`)
+  } catch (error) {
+    console.error("Error in calcRatingsGroups:", error)
+    throw new AppError(400, "Can't aggregate reviews!")
+  }
+}
 
 //update the product statics in case new review added
 reviewSchema.post("save", async function () {
   await (this.constructor as IReviewModel).calcAverageRatings(this.product)
+  await (this.constructor as IReviewModel).calcRatingsGroups(this.product)
 })
 // one review for user on the same product
 // preventing duplicated reviews from the same user
