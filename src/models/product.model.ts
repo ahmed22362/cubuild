@@ -13,6 +13,7 @@ export interface IProduct extends mongoose.Document {
   price: number
   coverImage: string
   images: string[]
+  tags: string[]
   options: {
     name: string
     values: string[]
@@ -29,6 +30,7 @@ const productSchema = new mongoose.Schema<IProduct>(
     price: { type: Number, required: true },
     coverImage: { type: String, require: true },
     images: [{ type: String }],
+    tags: [{ type: String }],
     options: [{ name: { type: String }, values: [{ type: String }] }],
     ratingsAverage: {
       type: Number,

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express"
 import {
+  aliasTopProducts,
   createProduct,
   deleteProduct,
   getAllProduct,
@@ -32,7 +33,8 @@ const setImagesUrlToBody = (
   next: NextFunction
 ) => {
   if (!req.files) {
-    return next(new AppError(400, "Please provide files to upload"))
+    // return next(new AppError(400, "Please provide files to upload"))
+    return next()
   }
   const files = req.files as unknown as Files
   if (files?.coverImage) req.body.coverImage = files.coverImage[0].path
@@ -65,6 +67,9 @@ productRouter
     validate(createProductSchema),
     createProduct
   )
+productRouter.get("/recommendation", protect, aliasTopProducts, getAllProduct)
+
+// productRouter.route("/recommendation").get()
 productRouter
   .route("/:id")
   .patch(

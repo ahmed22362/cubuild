@@ -71,6 +71,7 @@ export const getAll = (
 ) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // To allow for nested GET reviews on tour (hack)
+    console.log(req.query)
     let filter: any = {}
     if (req.params.productId) filter = { product: req.params.productId }
     if (req.body.user) filter = { user: req.body.user }
@@ -83,6 +84,7 @@ export const getAll = (
       .filter()
       .sort()
       .limitFields()
+      .searchByTags()
       .paginate()
     // const doc = await features.query.explain();
     const doc = await features.query

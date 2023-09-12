@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import bcrypt from "bcrypt"
 import logger from "../utils/logger"
 import crypto from "crypto"
-import { sendWelcomeUser } from "../utils/sendmail"
+import Mail from "../utils/sendmail"
 import dotenv from "dotenv"
 import convert from "../utils/convertEnvStrToNum"
 dotenv.config()
@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema<IUserDocument>(
         type: {
           type: String,
           enum: ["Point"],
-          default: "point",
+          default: "Point",
         },
         coordinates: {
           type: [Number], // long , lat
@@ -155,7 +155,7 @@ userSchema.methods.generatePasswordResetToken = function () {
 }
 userSchema.post("save", async function () {
   let user = this as IUserDocument
-  if (user.isNew) await sendWelcomeUser(user.name, user.email)
+  if (user.isNew) await new Mail(user.email, user.name).sendWelcome()
 })
 const User = mongoose.model<IUserDocument>("User", userSchema)
 

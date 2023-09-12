@@ -12,19 +12,6 @@ import {
   updateOne,
 } from "./factory.controller"
 
-function filterBodyObj<T extends Record<string, any>>(
-  obj: T,
-  ...fields: Array<keyof T>
-): Partial<T> {
-  const newObj: Partial<T> = {}
-  fields.forEach((el) => {
-    if (obj.hasOwnProperty(el)) {
-      newObj[el] = obj[el]
-    }
-  })
-  return newObj
-}
-
 export const getMe = (
   req: IRequestWithUser,
   res: Response,

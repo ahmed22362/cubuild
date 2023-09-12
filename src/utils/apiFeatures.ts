@@ -52,12 +52,40 @@ class APIFeatures {
 
     return this
   }
-
   paginate() {
     const page = this.queryString.page * 1 || 1
     const limit = this.queryString.limit * 1 || 100
     const skip = (page - 1) * limit
     this.query = this.query.skip(skip).limit(limit)
+
+    return this
+  }
+
+  searchByTags() {
+    if (this.queryString.tags) {
+      // Validate tags is a string
+      if (typeof this.queryString.tags !== "string") {
+        throw new Error("Tags must be a comma separated string")
+      }
+
+      // Trim whitespace
+      const tags = this.queryString.tags
+        .split(",")
+        .map((tag: string) => tag.trim())
+
+      // Allow single tag as string or array
+      const tagsQuery = Array.isArray(tags) ? tags : [tags]
+
+      // Lowercase for case insensitive
+      const lowerTags = tagsQuery.map((tag) => tag.toLowerCase())
+
+      // Partial match with regex
+      const tagsRegex = lowerTags.map((tag) => new RegExp(tag, "i"))
+
+      this.query = this.query.find({
+        tags: { $in: tagsRegex },
+      })
+    }
 
     return this
   }
