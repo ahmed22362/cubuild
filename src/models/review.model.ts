@@ -130,6 +130,9 @@ reviewSchema.post(/^findOneAnd/, async function () {
     await (preFindReview.constructor as IReviewModel).calcAverageRatings(
       preFindReview.product
     )
+    await (preFindReview.constructor as IReviewModel).calcRatingsGroups(
+      preFindReview.product
+    )
   }
 })
 

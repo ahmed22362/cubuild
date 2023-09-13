@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const createReviewSchema = z.object({
   body: z.object({
-    rating: z.optional(z.number()),
+    rating: z.number(),
     body: z.optional(z.string()),
     productId: z.string({
       required_error:
