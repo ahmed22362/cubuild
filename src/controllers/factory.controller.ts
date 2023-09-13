@@ -38,7 +38,6 @@ export const updateOne = (Model: Model<any>) =>
 
 export const createOne = (Model: Model<any>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    if (req.file) req.body.coverImage = req.file.path
     const doc = await Model.create(req.body)
     res.status(201).json({
       status: "success",

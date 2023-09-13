@@ -28,7 +28,7 @@ export const getAllProduct = getAll(
 )
 
 export const getProduct = getOne(Product, {
-  path: "reviews",
+  path: "reviews offer",
 })
 export const updateProduct = updateOne(Product)
 export const deleteProduct = deleteOne(Product)

@@ -21,6 +21,7 @@ export interface IProduct extends mongoose.Document {
   ratingsAverage: number
   ratingsQuantity: number
   ratingsGroup: IReviewRating
+  offer?: mongoose.Types.ObjectId
 }
 
 const productSchema = new mongoose.Schema<IProduct>(
@@ -49,6 +50,10 @@ const productSchema = new mongoose.Schema<IProduct>(
       rate_3_count: Number,
       rate_4_count: Number,
       rate_5_count: Number,
+    },
+    offer: {
+      type: mongoose.Types.ObjectId,
+      ref: "Offer",
     },
   },
   {
