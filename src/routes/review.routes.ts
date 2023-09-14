@@ -10,7 +10,10 @@ import {
   setProductORUserIds,
   deleteReview,
 } from "../controllers/review.controller"
+import LikeRouter from "./like.routes"
 const ReviewRouter = Router({ mergeParams: true })
+
+ReviewRouter.use("/:reviewId/helpful", LikeRouter)
 
 ReviewRouter.route("/:id")
   .get(getReview)

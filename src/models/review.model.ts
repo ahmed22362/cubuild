@@ -8,7 +8,7 @@ export interface IReviewDocument extends mongoose.Document {
   title: string
   user: mongoose.Types.ObjectId
   product: mongoose.Types.ObjectId
-  _tempReview: any
+  likeCount: number
 }
 interface IReviewModel extends mongoose.Model<IReviewDocument> {
   calcAverageRatings(productId: mongoose.Types.ObjectId): Promise<void>
@@ -26,6 +26,7 @@ const reviewSchema = new mongoose.Schema<IReviewDocument>(
       ref: "Product",
       required: [true, "Review must have user"],
     },
+    likeCount: { type: Number, default: 0 },
   },
   {
     timestamps: true,
