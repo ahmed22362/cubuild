@@ -14,7 +14,7 @@ export interface IFileItem {
   b2FileUrl: string
   b2FileId: string
 }
-export interface IFileCart {
+export interface IPrintCart {
   user: mongoose.Types.ObjectId
   files: IFileItem[]
   options?: {
@@ -26,7 +26,7 @@ export interface IFileCart {
   price: number
 }
 
-const FileCartModelSchema = new mongoose.Schema(
+const PrintCartModelSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Types.ObjectId, ref: "User", require: true },
     files: [
@@ -64,6 +64,9 @@ const FileCartModelSchema = new mongoose.Schema(
   }
 )
 
-const FileCartModel = mongoose.model<IFileCart>("FileCart", FileCartModelSchema)
+const PrintCartModel = mongoose.model<IPrintCart>(
+  "PrintCart",
+  PrintCartModelSchema
+)
 
-export default FileCartModel
+export default PrintCartModel

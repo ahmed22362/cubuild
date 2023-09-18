@@ -1,25 +1,36 @@
 import mongoose from "mongoose"
-
-enum OrderStatus {
-  Pending = "pending",
-  Shipped = "shipped",
-  Delivered = "delivered",
-  Canceled = "canceled",
-}
+import { CustomOrderStatus } from "./printCart.model"
 
 export interface IOrderItem {
   product: mongoose.Types.ObjectId
   quantity: number
 }
 export interface IOrder extends mongoose.Document {
-  user?: mongoose.Types.ObjectId
-  items?: IOrderItem[]
+  user: mongoose.Types.ObjectId
   totalCost: number
   status: string
+  shippingPrice: number
+  shipping: boolean
+}
+export interface IOnlineOrder extends IOrder {
+  items: IOrderItem[]
 }
 
-const orderSchema = new mongoose.Schema<IOrder>({
+export const baseOrderSchema = new mongoose.Schema({
   user: { type: mongoose.Types.ObjectId, ref: "User", required: "true" },
+  totalCost: { type: Number, required: true },
+  shipping: { type: Boolean, default: true },
+  shippingPrice: { type: Number, default: 0 },
+  status: {
+    type: String,
+    enum: Object.values(CustomOrderStatus),
+    required: true,
+    default: CustomOrderStatus.Pending,
+  },
+})
+
+const OnlineOrderSchema = new mongoose.Schema<IOnlineOrder>({
+  ...baseOrderSchema.obj,
   items: [
     {
       product: {
@@ -30,14 +41,7 @@ const orderSchema = new mongoose.Schema<IOrder>({
       quantity: { type: Number, default: 1 },
     },
   ],
-  totalCost: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: Object.values(OrderStatus),
-    required: true,
-    default: OrderStatus.Pending,
-  },
 })
 
-const OrderModel = mongoose.model<IOrder>("Order", orderSchema)
+const OrderModel = mongoose.model<IOrder>("Order", OnlineOrderSchema)
 export default OrderModel

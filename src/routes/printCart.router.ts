@@ -1,13 +1,13 @@
 import { Router } from "express"
 import {
-  getFileCartItem,
-  getUserFileCart,
-  userUpdateFileCartItem,
+  getPrintCartItem,
+  getUserPrintCart,
+  userUpdatePrintCartItem,
   uploadUserFile,
-  adminUpdateFileCart,
-  addFilesToFileCartItem,
-  deleteFileFromFileCart,
-} from "../controllers/fileCart.controller"
+  adminUpdatePrintCart,
+  addFilesToPrintCartItem,
+  deleteFileFromPrintCart,
+} from "../controllers/cartPrint.controller"
 import { memoryMulter } from "../middleware/multer.cloudinary"
 import { uploadToB2 } from "../middleware/uploadB2"
 import { protect, restrictTo } from "../controllers/auth.controller"
@@ -18,13 +18,13 @@ import {
 } from "../schema/fileCart.schema"
 import { setProductORUserIds } from "../controllers/review.controller"
 
-const FileCartRouter = Router()
+const PrintCartRouter = Router()
 
 const upload = memoryMulter
 
 // Not working i do'nt know why!
-// FileCartRouter.use(protect, setProductORUserIds)
-FileCartRouter.route("/")
+// PrintCartRouter.use(protect, setProductORUserIds)
+PrintCartRouter.route("/")
   .post(
     upload.any(),
     protect,
@@ -37,26 +37,25 @@ FileCartRouter.route("/")
     protect,
     setProductORUserIds,
     validate(getFileCartSchema),
-    getUserFileCart
+    getUserPrintCart
   )
-FileCartRouter.route("/:FileCartItemId")
-  .get(protect, setProductORUserIds, getFileCartItem)
-  .patch(protect, setProductORUserIds, userUpdateFileCartItem)
+PrintCartRouter.route("/:PrintCartItemId")
+  .get(protect, setProductORUserIds, getPrintCartItem)
+  .patch(protect, setProductORUserIds, userUpdatePrintCartItem)
 
-FileCartRouter.route("/:FileCartItemId/file")
+PrintCartRouter.route("/:PrintCartItemId/file")
   .post(
     upload.any(),
     protect,
     setProductORUserIds,
     uploadToB2,
-    addFilesToFileCartItem
+    addFilesToPrintCartItem
   )
-  .patch(protect, setProductORUserIds, deleteFileFromFileCart)
+  .patch(protect, setProductORUserIds, deleteFileFromPrintCart)
 
-FileCartRouter.route(":FileCartItemId/admin").patch(
+PrintCartRouter.route("/:PrintCartItemId/admin").patch(
   protect,
-  setProductORUserIds,
   restrictTo("admin"),
-  adminUpdateFileCart
+  adminUpdatePrintCart
 )
-export default FileCartRouter
+export default PrintCartRouter

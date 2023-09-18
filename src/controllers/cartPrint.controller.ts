@@ -2,10 +2,10 @@ import { NextFunction, Response, Request } from "express"
 import catchAsync from "../utils/catchAsync"
 import { IRequestWithUser } from "./auth.controller"
 import dotenv from "dotenv"
-import FileCartModel, {
-  IFileCart,
+import PrintCartModel, {
+  IPrintCart,
   CustomOrderStatus,
-} from "../models/fileCart.model"
+} from "../models/printCart.model"
 import B2Client from "../utils/b2client"
 import AppError from "../utils/AppError"
 dotenv.config()
@@ -20,7 +20,7 @@ export const uploadUserFile = catchAsync(
         b2FileId: file.fileId,
       }
     })
-    const fileCartItem = await FileCartModel.create({
+    const printCartItem = await PrintCartModel.create({
       user: req.user?.id,
       files: files,
       options,
@@ -28,55 +28,53 @@ export const uploadUserFile = catchAsync(
     })
     res.status(200).json({
       status: "success",
-      data: fileCartItem,
-      message: "updated successfully",
+      data: printCartItem,
+      message: "uploaded successfully",
     })
   }
 )
-export const getUserFileCart = catchAsync(
+export const getUserPrintCart = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const fileCart = await FileCartModel.find({ user: req.body.user })
-    if (!fileCart) {
+    const printCart = await PrintCartModel.find({ user: req.body.user })
+    if (!printCart) {
       return next(
         new AppError(400, "something wrong while getting custom orders")
       )
     }
     res
       .status(200)
-      .json({ status: "success", length: fileCart.length, data: fileCart })
+      .json({ status: "success", length: printCart.length, data: printCart })
   }
 )
 
-export const getFileCartItem = catchAsync(
+export const getPrintCartItem = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const { FileCartItemId } = req.params
-    console.log(req.body, req.params)
-    const fileCartItem = await FileCartModel.findOne({
-      _id: FileCartItemId,
+    const { PrintCartItemId } = req.params
+    const printCartItem = await PrintCartModel.findOne({
+      _id: PrintCartItemId,
       user: req.body.user,
     })
-    if (!fileCartItem) {
+    if (!printCartItem) {
       return next(new AppError(400, "Can''t find item with this id!"))
     }
-    res.status(200).json({ status: "success", data: fileCartItem })
+    res.status(200).json({ status: "success", data: printCartItem })
   }
 )
 
-export const userUpdateFileCartItem = catchAsync(
+export const userUpdatePrintCartItem = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartItemId } = req.params
+    const { PrintCartItemId } = req.params
     const { options, user } = req.body
-    console.log(user, FileCartItemId)
-    const FileCartItem = await FileCartModel.findOne({
-      _id: FileCartItemId,
+    const PrintCartItem = await PrintCartModel.findOne({
+      _id: PrintCartItemId,
       user: user,
     })
-    if (!FileCartItem) {
+    if (!PrintCartItem) {
       return next(
         new AppError(400, "Can't find item in the cart with this id!")
       )
     }
-    if (FileCartItem.status !== CustomOrderStatus.Pending) {
+    if (PrintCartItem.status !== CustomOrderStatus.Pending) {
       return next(
         new AppError(
           400,
@@ -84,47 +82,45 @@ export const userUpdateFileCartItem = catchAsync(
         )
       )
     }
-    FileCartItem.options = options
-    await FileCartItem.save()
-    res.status(200).json({ status: "success", data: FileCartItem })
+    PrintCartItem.options = options
+    await PrintCartItem.save()
+    res.status(200).json({ status: "success", data: PrintCartItem })
   }
 )
 
-export const deleteFileFromFileCart = catchAsync(
+export const deleteFileFromPrintCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartItemId } = req.params
+    const { PrintCartItemId } = req.params
     const { fileName, b2FileId, user } = req.body
     const keyId = process.env.B2_KEY_ID || ""
     const applicationKey = process.env.B2_APPLICATION_KEY || ""
     const b2client = new B2Client(keyId, applicationKey)
     console.log(fileName, b2FileId, user)
-    // await b2client.deleteFile(b2FileId, fileName)
+    await b2client.deleteFile(b2FileId, fileName)
 
-    const updatedFileCart = (await FileCartModel.findByIdAndUpdate(
-      { _id: FileCartItemId, user: user },
+    const updatedPrintCart = (await PrintCartModel.findByIdAndUpdate(
+      { _id: PrintCartItemId, user: user },
       { $pull: { files: { b2FileId: b2FileId } } },
       { new: true }
-    )) as IFileCart
-    if (updatedFileCart.files.length === 0) {
-      await FileCartModel.deleteOne({ _id: FileCartItemId })
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          message:
-            "file removed successfully and the whole document removed because there are no files now!",
-        })
+    )) as IPrintCart
+    if (updatedPrintCart.files.length === 0) {
+      await PrintCartModel.deleteOne({ _id: PrintCartItemId })
+      return res.status(200).json({
+        status: "success",
+        message:
+          "file removed successfully and the whole document removed because there are no files now!",
+      })
     }
     res.status(200).json({
       status: "success",
       message: "file removed successfully",
-      data: updatedFileCart,
+      data: updatedPrintCart,
     })
   }
 )
-export const addFilesToFileCartItem = catchAsync(
+export const addFilesToPrintCartItem = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartItemId } = req.params
+    const { PrintCartItemId } = req.params
     const { user } = req.body
     const files = res.locals.fileData.map((file: any) => {
       return {
@@ -134,8 +130,8 @@ export const addFilesToFileCartItem = catchAsync(
       }
     })
 
-    const fileCart = await FileCartModel.findOne({
-      _id: FileCartItemId,
+    const fileCart = await PrintCartModel.findOne({
+      _id: PrintCartItemId,
       user: user,
     })
     if (!fileCart) {
@@ -152,17 +148,18 @@ export const addFilesToFileCartItem = catchAsync(
   }
 )
 
-export const adminUpdateFileCart = catchAsync(
+export const adminUpdatePrintCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { FileCartItemId } = req.params
-    const { user, status } = req.body
-    const updatedFileCart = await FileCartModel.findOneAndUpdate(
-      { _id: FileCartItemId, user: user },
+    const { PrintCartItemId } = req.params
+    const { status, price } = req.body
+    const updatedPrintCart = await PrintCartModel.findOneAndUpdate(
+      { _id: PrintCartItemId },
       {
         status: status,
+        price: price,
       },
       { new: true }
     )
-    res.status(200).json({ status: "success", data: updatedFileCart })
+    res.status(200).json({ status: "success", data: updatedPrintCart })
   }
 )

@@ -1,19 +1,17 @@
-import { NextFunction, Response } from "express"
+import { Request, NextFunction, Response } from "express"
 import catchAsync from "../utils/catchAsync"
 import Order from "../models/order.model"
 import { IRequestWithUser } from "./auth.controller"
 import Cart, { ICart } from "../models/cart.model"
 import Product from "../models/product.model"
 import AppError from "../utils/AppError"
-import { getAll, getOne } from "./factory.controller"
+import { deleteOne, getAll, getOne } from "./factory.controller"
 
 export const createOrder = catchAsync(
-  async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const cart = await Cart.findOne({ user: req.body.user })
     if (!cart) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Can't find cart for this user" })
+      return next(new AppError(400, "Can't find cart for this user"))
     }
     // check if there is order document first or not
     // if there is order document i want to add the content of the cart to it
@@ -52,6 +50,8 @@ export const getOrder = getOne(Order, {
   path: "items.product",
   select: "title price coverImage",
 })
+
+export const deleteOrder = deleteOne(Order)
 
 // Utility function to calculate order total
 const calculateTotal = async function (cart: ICart) {
