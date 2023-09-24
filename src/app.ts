@@ -6,6 +6,7 @@ import dotenv from "dotenv"
 import rateLimit from "express-rate-limit"
 import mongoSanitize from "express-mongo-sanitize"
 import cookieParser from "cookie-parser"
+import path from "path"
 
 import connectDB from "./utils/connectDB"
 import routes from "./routes"
@@ -28,8 +29,12 @@ if (PORT !== undefined && isNaN(PORT)) {
 }
 // Set security HTTP headers
 app.use(helmet())
+// Parse incoming request bodies
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.set("view engine", "ejs")
+app.set("views", path.join(__dirname, "views"))
 if (process.env.NODE_ENV?.trim() === "development") {
   app.use(morgan("dev"))
 }

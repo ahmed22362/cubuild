@@ -25,9 +25,11 @@ authRouter.post(
   validate(forgetPasswordSchema),
   forgetPassword
 )
-authRouter
-  .route("/resetPassword/:token")
-  .patch(validate(resetPasswordSchema), resetPassword)
+authRouter.route("/resetPassword/:token").get((req, res) => {
+  const { token } = req.params
+  res.render("resetPassword", { token })
+})
+authRouter.post("/resetPassword", validate(resetPasswordSchema), resetPassword)
 authRouter
   .route("/updateMyPassword")
   .patch(protect, validate(updateMyPasswordSchema), updatePassword)

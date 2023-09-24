@@ -17,17 +17,36 @@ export interface Address extends mongoose.Document {
   }
 }
 
+interface IBillingData extends mongoose.Document {
+  apartment: string
+  email: string
+  floor: string
+  first_name: string
+  street: string
+  building: string
+  phone_number: string
+  shipping_method: string
+  postalCode: string
+  city: string
+  country: string
+  last_name: string
+  state: string
+}
+
 export interface IUserInput {
   name: string
   email: string
   password: string
+  phoneNumber: string
   address: Address
+  billing: IBillingData
 }
 
 export interface IUserResponse {
   name: string
   email: string
   address: Address
+  phoneNumber: string
   _id: string
   password: string | undefined
   role: string | undefined
@@ -55,6 +74,24 @@ const userSchema = new mongoose.Schema<IUserDocument>(
       required: true,
       unique: true,
       lowercase: true,
+    },
+    phoneNumber: {
+      type: String,
+    },
+    billing: {
+      first_name: { type: String, required: true, default: "NA" },
+      last_name: { type: String, required: true, default: "NA" },
+      email: { type: String, required: true, default: "NA" },
+      phone_number: { type: String, required: true, default: "NA" },
+      floor: { type: String, required: true, default: "NA" },
+      apartment: { type: String, required: true, default: "NA" },
+      street: { type: String, required: true, default: "NA" },
+      building: { type: String, required: true, default: "NA" },
+      city: { type: String, required: true, default: "NA" },
+      country: { type: String, required: true, default: "NA" },
+      state: { type: String, required: true, default: "NA" },
+      postal_code: { type: String, required: true, default: "NA" },
+      shipping_method: { type: String, default: "PKG" },
     },
     password: { type: String, required: true, select: false },
     address: {
@@ -87,6 +124,40 @@ const userSchema = new mongoose.Schema<IUserDocument>(
     toObject: { virtuals: true },
   }
 )
+
+function updateBillingData(user: IUserDocument) {
+  console.log("in pre save")
+  const checkAvailable = (item: string) => {
+    console.log(item, item && item !== "NA")
+    return item && item !== "NA"
+  }
+  // Billing firstName
+  if (!checkAvailable(user.billing.first_name)) {
+    user.billing.first_name = user.name
+  }
+
+  // Billing lastName
+  if (!checkAvailable(user.billing.last_name)) {
+    // Split name on space to get last name
+    const nameParts = user.name.split(" ")
+    user.billing.last_name = nameParts[nameParts.length - 1]
+  }
+
+  // Billing email
+  if (!checkAvailable(user.billing.email)) {
+    user.billing.email = user.email
+  }
+  // Billing phone
+  if (!checkAvailable(user.billing.phone_number)) {
+    user.billing.phone_number = user.phoneNumber
+  }
+}
+
+userSchema.pre("save", function (next) {
+  updateBillingData(this)
+  return next()
+})
+
 userSchema.pre("save", async function (next) {
   let user = this as IUserDocument
   if (!user.isModified("password")) {

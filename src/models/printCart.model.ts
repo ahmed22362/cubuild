@@ -3,6 +3,7 @@ import mongoose from "mongoose"
 export enum CustomOrderStatus {
   Pending = "pending",
   Processing = "processing ",
+  shipping = "shipping ",
   Shipped = "shipped",
   Delivered = "delivered",
   Completed = "completed",
@@ -21,6 +22,7 @@ export interface IPrintCart {
     name: string
     values: string[]
   }[]
+  quantity: number
   description?: string
   status: string
   price: number
@@ -49,6 +51,7 @@ const PrintCartModelSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    quantity: { type: Number, default: 1 },
     status: {
       type: String,
       enum: Object.values(CustomOrderStatus),

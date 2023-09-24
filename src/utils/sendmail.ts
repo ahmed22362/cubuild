@@ -2,6 +2,7 @@ import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 import generateResetPasswordTemplate from "./../templates/resetPasswordTemplate"
 import generateWelcomeTemplate from "../templates/welcomeTemplate"
+import generateConfirmOrder from "../templates/confirmOrderTemplate"
 dotenv.config()
 
 export interface MailInterface {
@@ -57,7 +58,7 @@ class Mail {
       from: "HR <ceo@codegate.info>", // sender address
       to: this.to, // list of receivers
       subject: subject, // Subject line
-      text: template.text, // plain text body
+      text: template.text || "", // plain text body
       html: template.html, // html body
     }
     return await this.newTransporter().sendMail(mailOptions)
@@ -77,6 +78,14 @@ class Mail {
       this.name
     )
     let info = await this.send(forgetTemplate, "Welcome To CuBuild")
+    if (process.env.NODE_ENV === "development") {
+      console.log("Message sent: %s", info.messageId)
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+  }
+  async sendConfirmOrder(order: any, total: number) {
+    const confirmOrderTemplate = generateConfirmOrder(order, total, this.name)
+    const info = await this.send(confirmOrderTemplate, "Order details!")
     if (process.env.NODE_ENV === "development") {
       console.log("Message sent: %s", info.messageId)
       console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))

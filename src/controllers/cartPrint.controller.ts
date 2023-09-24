@@ -160,6 +160,9 @@ export const adminUpdatePrintCart = catchAsync(
       },
       { new: true }
     )
+    if (!updatedPrintCart) {
+      return next(new AppError(400, "Can't find item with this id!"))
+    }
     res.status(200).json({ status: "success", data: updatedPrintCart })
   }
 )

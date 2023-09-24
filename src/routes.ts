@@ -12,13 +12,24 @@ import PrintCart from "./routes/printCart.router"
 import hookRouter from "./routes/webhook.routes"
 import offerRouter from "./routes/offer.routes"
 import printOrderRouter from "./routes/printOrder.routes"
+import Paymob from "./payments/paymobStrategy"
+import payRouter from "./routes/pay.routes"
+
+const API_TOKEN = process.env.PAYMOB_API as string
 
 function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.sendStatus(200)
   })
-  app.get("/test", (req, res) => {
-    res.redirect("https://translate.google.com/")
+  app.get("/test", async (req, res) => {
+    const paymob = new Paymob(API_TOKEN)
+    const orderId = await paymob.registerOrder([], 3403)
+    const iFrame = await paymob.payWithCard(5493, {}, orderId)
+    res.redirect(iFrame)
+  })
+  app.get("/callback", (req, res, next) => {
+    console.log(req.query)
+    res.send("<h1>Yes!!</h1>")
   })
   app.use("/insertDummyData", dummyDataRouter)
   app.use("/api/v1/product", productRouter)
@@ -30,6 +41,7 @@ function routes(app: Express) {
   app.use("/api/v1/offer", offerRouter)
   app.use("/api/v1/printCart", PrintCart)
   app.use("/api/v1/printOrder", printOrderRouter)
+  app.use("/api/v1/pay", payRouter)
   app.use("/api/v1/webHook", hookRouter)
   app.all("*", (req, res, next) => {
     next(new AppError(404, `Can't find ${req.originalUrl} on this server!`))

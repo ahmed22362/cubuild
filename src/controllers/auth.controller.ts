@@ -55,13 +55,16 @@ export const signup = catchAsync(async function (
   res: Response,
   next: NextFunction
 ) {
-  const { name, email, password, address }: IUserInput = req.body
+  const { name, email, password, address, billing, phoneNumber }: IUserInput =
+    req.body
 
   const userData: IUserInput = {
     name,
     email,
     password,
     address,
+    billing,
+    phoneNumber,
   }
   const newUser: IUserResponse = await User.create(userData)
   createSendToken(newUser, 201, res)
@@ -159,6 +162,7 @@ export const forgetPassword = catchAsync(
     const resetURL: string = `${req.protocol}://${req.get(
       "host"
     )}/api/v1/user/auth/resetPassword/${resetToken}`
+    console.log(resetURL)
     try {
       const mail = new Mail(user.email, user.name, resetURL)
       await mail.sendForgetPassword()
@@ -179,22 +183,30 @@ export const forgetPassword = catchAsync(
 
 export const resetPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { token, password, passwordConfirmation } = req.body
     const hashedToken: string = crypto
       .createHash("sha256")
-      .update(req.params.token)
+      .update(token)
       .digest("hex")
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetTokenExpires: { $gt: Date.now() },
     })
     if (!user) {
-      return next(new AppError(400, "Token is invalid or has expire!"))
+      return res.render("resetPasswordError")
     }
-    user.password = req.body.password
+    // Validate the new password and confirmation
+    if (password !== passwordConfirmation) {
+      return next(new AppError(400, "Passwords do not match!"))
+    }
+    user.password = password
     user.passwordResetToken = undefined
     user.passwordResetTokenExpires = undefined
     await user.save()
-    createSendToken(user, 200, res)
+    // createSendToken(user, 200, res)
+    // Set a success message
+    // Redirect to the login page
+    res.render("resetPasswordSuccess")
   }
 )
 

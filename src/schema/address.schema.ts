@@ -9,9 +9,9 @@ export const addressSchema = z.object({
       type: z.literal("Point"),
       coordinates: z.tuple([z.number(), z.number()]),
     })
-    .refine((value) => value.type === "Point" && !value.type, {
-      message: `Invalid location type `,
-    })
+    // .refine((value) => value.type === "Point" && !value.type, {
+    //   message: `Invalid location type `,
+    // })
     .refine(
       (value) =>
         Array.isArray(value.coordinates) && value.coordinates.length === 2,

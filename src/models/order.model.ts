@@ -11,6 +11,7 @@ export interface IOrder extends mongoose.Document {
   status: string
   shippingPrice: number
   shipping: boolean
+  paymobOrderId: string
 }
 export interface IOnlineOrder extends IOrder {
   items: IOrderItem[]
@@ -20,7 +21,8 @@ export const baseOrderSchema = new mongoose.Schema({
   user: { type: mongoose.Types.ObjectId, ref: "User", required: "true" },
   totalCost: { type: Number, required: true },
   shipping: { type: Boolean, default: true },
-  shippingPrice: { type: Number, default: 0 },
+  shippingPrice: { type: Number, default: 35 },
+  paymobOrderId: { type: String },
   status: {
     type: String,
     enum: Object.values(CustomOrderStatus),

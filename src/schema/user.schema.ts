@@ -55,16 +55,12 @@ export const resetPasswordSchema = z.object({
       passwordConfirmation: z.string({
         required_error: "passwordConfirmation is required",
       }),
+      token: z.string({ required_error: "token is Required!" }),
     })
     .refine((data) => data.password === data.passwordConfirmation, {
       message: "Passwords do not match",
       path: ["passwordConfirmation"],
     }),
-  params: z.object({
-    token: z.string({
-      required_error: "Token is required for to reset password",
-    }),
-  }),
 })
 
 export const updateMyPasswordSchema = z.object({
