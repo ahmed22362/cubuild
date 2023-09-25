@@ -1,4 +1,4 @@
-import axios, { AxiosStatic } from "axios"
+import axios from "axios"
 import AppError from "../utils/AppError"
 
 const PAYMOB_URL = "https://accept.paymob.com/api"

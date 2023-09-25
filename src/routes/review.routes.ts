@@ -1,6 +1,11 @@
 import { Router } from "express"
 import validate from "../middleware/validateSchema"
-import { createReviewSchema } from "../schema/review.schema"
+import {
+  createReviewSchema,
+  getReviewSchema,
+  removeReviewSchema,
+  updateReviewSchema,
+} from "../schema/review.schema"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import {
   createReview,
@@ -16,11 +21,17 @@ const ReviewRouter = Router({ mergeParams: true })
 ReviewRouter.use("/:reviewId/helpful", LikeRouter)
 
 ReviewRouter.route("/:id")
-  .get(getReview)
-  .patch(updateReview)
-  .delete(deleteReview)
+  .get(validate(getReviewSchema), getReview)
+  .patch(validate(updateReviewSchema), updateReview)
+  .delete(validate(removeReviewSchema), deleteReview)
 ReviewRouter.route("/")
   .get(getReviews)
-  .post(protect, restrictTo("user"), setProductORUserIds, createReview)
+  .post(
+    protect,
+    restrictTo("user"),
+    setProductORUserIds,
+    validate(createReviewSchema),
+    createReview
+  )
 
 export default ReviewRouter

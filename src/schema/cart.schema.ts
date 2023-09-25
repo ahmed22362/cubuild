@@ -4,7 +4,7 @@ export const AddItemToCartSchema = z.object({
   body: z.object({
     user: z.string(),
     product: z.string(),
-    quantity: z.number(),
+    quantity: z.number().default(1),
   }),
 })
 export const updateItemFromCartSchema = z.object({

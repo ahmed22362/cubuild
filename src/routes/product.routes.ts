@@ -67,15 +67,16 @@ productRouter
     validate(createProductSchema),
     createProduct
   )
-productRouter.get("/recommendation", protect, aliasTopProducts, getAllProduct)
+productRouter.get("/recommendation", aliasTopProducts, getAllProduct)
 
-// productRouter.route("/recommendation").get()
 productRouter
   .route("/:id")
   .patch(
     uploadMultiple,
     setImagesUrlToBody,
     validate(updateProductSchema),
+    protect,
+    restrictTo("admin"),
     updateProduct
   )
   .get(validate(getProductSchema), getProduct)
