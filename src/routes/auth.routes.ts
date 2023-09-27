@@ -13,10 +13,13 @@ import {
   forgetPassword,
   resetPassword,
   updatePassword,
+  googleOauthController,
 } from "../controllers/auth.controller"
 import validate from "../middleware/validateSchema"
 import { protect } from "../controllers/auth.controller"
 const authRouter = Router()
+
+authRouter.get("/oauth/google", googleOauthController)
 
 authRouter.post("/signup", validate(signupUserSchema), signup)
 authRouter.post("/login", validate(loginUserSchema), login)

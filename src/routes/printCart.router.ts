@@ -13,9 +13,11 @@ import { uploadToB2 } from "../middleware/uploadB2"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import validate from "../middleware/validateSchema"
 import {
-  createFileCartSchema,
-  getFileCartSchema,
-} from "../schema/fileCart.schema"
+  createPrintCartSchema,
+  getPrintCarItemSchema,
+  getPrintCartSchema,
+  updatePrintCartItemOptionsSchema,
+} from "../schema/printCart.schema"
 import { setProductORUserIds } from "../controllers/review.controller"
 
 const PrintCartRouter = Router()
@@ -29,19 +31,29 @@ PrintCartRouter.route("/")
     upload.any(),
     protect,
     setProductORUserIds,
-    validate(createFileCartSchema),
+    validate(createPrintCartSchema),
     uploadToB2,
     uploadUserFile
   )
   .get(
     protect,
     setProductORUserIds,
-    validate(getFileCartSchema),
+    validate(getPrintCartSchema),
     getUserPrintCart
   )
 PrintCartRouter.route("/:PrintCartItemId")
-  .get(protect, setProductORUserIds, getPrintCartItem)
-  .patch(protect, setProductORUserIds, userUpdatePrintCartItem)
+  .get(
+    protect,
+    setProductORUserIds,
+    validate(getPrintCarItemSchema),
+    getPrintCartItem
+  )
+  .patch(
+    protect,
+    setProductORUserIds,
+    validate(updatePrintCartItemOptionsSchema),
+    userUpdatePrintCartItem
+  )
 
 PrintCartRouter.route("/:PrintCartItemId/file")
   .post(

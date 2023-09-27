@@ -12,8 +12,10 @@ const API_TOKEN = process.env.PAYMOB_API as string
 
 export const createOrderPrint = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { itemId, user, shipping, shippingPrice } = req.body
-    const cartItem = await PrintCartModel.findById(itemId)
+    const { cartItemId, user, shipping } = req.body
+    // This is not right we should calculate the shipping price based on some metrics!!!
+    const shippingPrice = 53
+    const cartItem = await PrintCartModel.findById(cartItemId)
     if (!cartItem)
       return next(new AppError(400, "can't find item with this id!"))
     if (cartItem.status === CustomOrderStatus.Pending)
@@ -35,7 +37,6 @@ export const createOrderPrint = catchAsync(
         paymob_order_items,
         totalCost
       )
-      console.log("after creating the ppaymob order")
       const orderItem = {
         user,
         shipping,

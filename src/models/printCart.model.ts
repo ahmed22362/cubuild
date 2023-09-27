@@ -2,8 +2,8 @@ import mongoose from "mongoose"
 
 export enum CustomOrderStatus {
   Pending = "pending",
-  Processing = "processing ",
-  shipping = "shipping ",
+  Processing = "processing",
+  shipping = "shipping",
   Shipped = "shipped",
   Delivered = "delivered",
   Completed = "completed",

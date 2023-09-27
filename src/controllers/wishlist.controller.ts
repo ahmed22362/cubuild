@@ -1,14 +1,12 @@
 import { Request, Response, NextFunction } from "express"
 import catchAsync from "../utils/catchAsync"
 import Wishlist, { IWishlist } from "../models/wishlist.model"
-import { IRequestWithUser } from "./auth.controller"
 import AppError from "../utils/AppError"
 import mongoose from "mongoose"
 
 export const getWishlist = catchAsync(
-  async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    let userId = ""
-    if (req.body.user) userId = req.body.user.id
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.user
     const wishlist = await getOrCreateWishlist(userId)
     if (!wishlist) {
       return next(new AppError(400, "can't create or find wishlist"))
@@ -22,9 +20,8 @@ export const getWishlist = catchAsync(
 )
 
 export const addItemToWishlist = catchAsync(
-  async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    let userId = ""
-    if (req.body.user) userId = req.body.user.id
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.user
     const productId = req.body.product
 
     const wishlist = await getOrCreateWishlist(userId)
@@ -54,23 +51,25 @@ export const addItemToWishlist = catchAsync(
 )
 
 export const removeItemFromWishlist = catchAsync(
-  async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    let userId = ""
-    if (req.body.user) userId = req.body.user.id
-    console.log(req.body)
-    const wishlist = await getOrCreateWishlist(userId)
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.user
+    const productId = req.body.product
+
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { user: userId },
+      { $pull: { items: { product: productId } } },
+      {
+        new: true,
+        upsert: true,
+      }
+    )
     if (!wishlist) {
       return next(new AppError(400, "can't create or find wishlist"))
     }
-    const itemId = req.body.itemId
-    wishlist.items = wishlist.items?.filter(function (item) {
-      return item.id.toString() !== itemId
-    })
     wishlist.populate({
       path: "items.product",
       select: "title coverImage price",
     })
-    await wishlist.save()
 
     res.status(200).json({
       status: "success",

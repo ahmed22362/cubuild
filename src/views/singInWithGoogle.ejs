@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Google Sign In</title>
+
+    <style>
+      button {
+        padding: 12px 24px;
+        background: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      button:hover {
+        background: #357ae8;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="signin-button">Sign in with Google</button>
+
+    <script>
+      const signInButton = document.getElementById("signin-button")
+      const redirect_uri = "<%- locals.redirect_uri %>"
+      const client_id = "<%- locals.client_id %>"
+
+      function getGoogleOAuthURL() {
+        const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+
+        const options = {
+          redirect_uri: redirect_uri,
+          client_id: client_id,
+          access_type: "offline",
+          response_type: "code",
+          prompt: "consent",
+          scope: [
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+          ].join(" "),
+        }
+
+        const qs = new URLSearchParams(options)
+        return `${rootUrl}?${qs.toString()}`
+      }
+      signInButton.addEventListener("click", () => {
+        window.open(getGoogleOAuthURL())
+        console.log("in singin with coogle", getGoogleOAuthURL())
+      })
+    </script>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { addressSchema } from "./address.schema"
 
-export const signupUserSchema = z.object({
+const payload = {
   body: z
     .object({
       name: z.string({
@@ -26,7 +26,9 @@ export const signupUserSchema = z.object({
       message: "Passwords do not match",
       path: ["passwordConfirmation"],
     }),
-})
+}
+
+export const signupUserSchema = z.object({ ...payload })
 
 export const loginUserSchema = z.object({
   body: z.object({
@@ -90,6 +92,17 @@ export const updateMeSchema = z.object({
     email: z.optional(z.string().email("Not a valid mail")),
   }),
 })
-
+const params = {
+  params: z.object({
+    id: z.string({
+      required_error: "Add ID to params to get the associated user!",
+    }),
+  }),
+}
+export const getMeSchema = z.object({ ...params })
+export const getUserSchema = z.object({ ...params })
+export const updateUserSchema = z.object({ ...params })
+export const deleteUserSchema = z.object({ ...params })
+export const createUserSchema = z.object({ ...payload })
 type LoginUserSchemaInput = z.TypeOf<typeof loginUserSchema>
 export type LoginUserSchemaBody = LoginUserSchemaInput["body"]

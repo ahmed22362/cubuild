@@ -15,7 +15,7 @@ const API_TOKEN = process.env.PAYMOB_API as string
 export const createOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { user, shipping, shippingPrice } = req.body
-
+    // remove shippingPrice make it automated
     const cart = await Cart.findOne({ user: user }).populate({
       path: "items.product",
       select: "title price description quantity",
@@ -31,7 +31,6 @@ export const createOrder = catchAsync(
     // not to overwrite it!
     const total = ((await calculateTotal(cart)) +
       (shipping ? shippingPrice : 0)) as number
-    console.log(shipping, shippingPrice, total)
     try {
       const paymobItems = cart.items.map((item: any) => {
         return {

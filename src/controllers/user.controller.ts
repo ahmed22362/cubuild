@@ -33,9 +33,15 @@ export const deleteAllUsers = catchAsync(async function (
   res: Response,
   next: NextFunction
 ) {
-  await User.deleteMany({})
-  res.status(200).json({
-    status: "success",
-    message: "you successfully deleted all users! what we will do now",
-  })
+  if (process.env.NODE_ENV?.trim() === "development") {
+    await User.deleteMany({})
+    return res.status(200).json({
+      status: "success",
+      message: "you successfully deleted all users! what we will do now",
+    })
+  } else {
+    return res
+      .status(401)
+      .json({ status: "fail", message: "You Can't Delete USERS DataBase!!!" })
+  }
 })

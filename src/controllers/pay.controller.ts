@@ -132,6 +132,7 @@ export const payPostCallBack = catchAsync(
           )
         )
       }
+      // check success of the transaction TODO
       order.status = CustomOrderStatus.shipping
       await order.save()
       // send mail to the user abut the order

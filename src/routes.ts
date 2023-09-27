@@ -9,7 +9,6 @@ import cartRouter from "./routes/cart.routes"
 import orderRouter from "./routes/order.routes"
 import wishlistRouter from "./routes/wishlist.routes"
 import PrintCart from "./routes/printCart.router"
-import hookRouter from "./routes/webhook.routes"
 import offerRouter from "./routes/offer.routes"
 import printOrderRouter from "./routes/printOrder.routes"
 import Paymob from "./payments/paymobStrategy"
@@ -27,9 +26,16 @@ function routes(app: Express) {
     const iFrame = await paymob.payWithCard(5493, {}, orderId)
     res.redirect(iFrame)
   })
-  app.get("/callback", (req, res, next) => {
-    console.log(req.query)
-    res.send("<h1>Yes!!</h1>")
+  app.get("/signinwithgoogle", (req, res, next) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      "script-src 'self' 'unsafe-inline'"
+    )
+
+    res.render("singInWithGoogle", {
+      redirect_uri: process.env.GOOGLE_REDIRECT_URL_LOCAL,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+    })
   })
   app.use("/insertDummyData", dummyDataRouter)
   app.use("/api/v1/product", productRouter)
@@ -42,7 +48,6 @@ function routes(app: Express) {
   app.use("/api/v1/printCart", PrintCart)
   app.use("/api/v1/printOrder", printOrderRouter)
   app.use("/api/v1/pay", payRouter)
-  app.use("/api/v1/webHook", hookRouter)
   app.all("*", (req, res, next) => {
     next(new AppError(404, `Can't find ${req.originalUrl} on this server!`))
   })

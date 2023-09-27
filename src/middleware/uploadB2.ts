@@ -16,7 +16,6 @@ function sanitizeFilename(name: string) {
 export const uploadToB2 = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let files = req.files as Express.Multer.File[]
-    console.log(files)
     const keyId = process.env.B2_KEY_ID || ""
     const applicationKey = process.env.B2_APPLICATION_KEY || ""
     const b2client = new B2Client(keyId, applicationKey)

@@ -12,6 +12,10 @@ import Mail from "../utils/sendmail"
 import crypto from "crypto"
 import dotenv from "dotenv"
 import logger from "../utils/logger"
+import {
+  getGoogleOAuthTokens,
+  getGoogleUser,
+} from "../services/googleOauth.service"
 dotenv.config()
 
 export interface IRequestWithUser extends Request {
@@ -23,11 +27,17 @@ interface decodedToken {
   exp: number
 }
 
-const createSendToken = (
-  user: IUserResponse,
-  statusCode: number,
+const createSendToken = ({
+  user,
+  statusCode,
+  res,
+  redirect,
+}: {
+  user: IUserResponse
+  statusCode?: number
   res: Response
-) => {
+  redirect?: string
+}) => {
   const token: string = singJWTToken({ id: user._id })
   const millSecToDay: number = 24 * 60 * 60 * 1000
   // const cookieExpire = config.get<number>("JWT_COOKIES_EXPIRES")
@@ -47,7 +57,12 @@ const createSendToken = (
   user.role = undefined
   // set cookies
   res.cookie("token", token, cookieOptions)
-  res.status(statusCode).json({ status: "success", token, data: user })
+  if (statusCode) {
+    return res.status(statusCode).json({ status: "success", token, data: user })
+  } else if (redirect) {
+    return res.redirect(redirect)
+  }
+  res.status(200).json({ status: "success", token, data: user })
 }
 
 export const signup = catchAsync(async function (
@@ -67,7 +82,7 @@ export const signup = catchAsync(async function (
     phoneNumber,
   }
   const newUser: IUserResponse = await User.create(userData)
-  createSendToken(newUser, 201, res)
+  createSendToken({ user: newUser, statusCode: 201, res })
 })
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
@@ -87,7 +102,7 @@ export const login = catchAsync(async function (
     return next(new AppError(401, "There email or password is not correct!"))
   }
 
-  createSendToken(user, 200, res)
+  createSendToken({ user, statusCode: 202, res })
 })
 
 export const protect = catchAsync(
@@ -162,7 +177,6 @@ export const forgetPassword = catchAsync(
     const resetURL: string = `${req.protocol}://${req.get(
       "host"
     )}/api/v1/user/auth/resetPassword/${resetToken}`
-    console.log(resetURL)
     try {
       const mail = new Mail(user.email, user.name, resetURL)
       await mail.sendForgetPassword()
@@ -232,6 +246,42 @@ export const updatePassword = catchAsync(
     // User.findByIdAndUpdate will NOT work as intended!
 
     // 4) Log user in, send JWT
-    createSendToken(user, 200, res)
+    createSendToken({ user, statusCode: 200, res })
+  }
+)
+
+export const googleOauthController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // get the code from qs
+    const code = req.query.code as string
+    // get the id and access token with the code
+    try {
+      const { id_token, access_token } = await getGoogleOAuthTokens({
+        code,
+      })
+      // get user with tokens
+      const googleUser = await getGoogleUser({ id_token, access_token })
+      //jwt.decode(id_token);
+      // upsert the user
+      if (!googleUser.verified_email) {
+        throw new AppError(403, "Google Account is not verified!")
+      }
+      const user = await User.findOneAndUpdate(
+        { email: googleUser.email },
+        {
+          email: googleUser.email,
+          name: googleUser.name,
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      )
+      // create an access token
+      createSendToken({ user, redirect: "https://cubuild.net/", res })
+    } catch (error: any) {
+      logger.error(error, "Failed to authorized Google user!")
+      return res.render("errorPage", { message: error.message })
+    }
   }
 )

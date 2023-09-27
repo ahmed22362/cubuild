@@ -12,12 +12,19 @@ import {
 } from "../controllers/user.controller"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import validate from "../middleware/validateSchema"
-import { updateMeSchema } from "../schema/user.schema"
+import {
+  createUserSchema,
+  deleteUserSchema,
+  getMeSchema,
+  getUserSchema,
+  updateMeSchema,
+  updateUserSchema,
+} from "../schema/user.schema"
 
 const userRouter = Router()
 
 userRouter.use("/auth", authRouter)
-userRouter.get("/me", protect, getMe, getUser)
+userRouter.get("/me", protect, getMe, validate(getMeSchema), getUser)
 userRouter
   .route("/updateMe")
   .patch(protect, validate(updateMeSchema), getMe, updateMe)
@@ -30,9 +37,13 @@ that only available for the admin
 userRouter.use(protect, restrictTo("admin"))
 userRouter
   .route("/:id")
-  .get(getUser)
-  .patch(updateUserById)
-  .delete(deleteUserById)
-userRouter.route("/").get(getAllUsers).post(createUser).delete(deleteAllUsers)
+  .get(validate(getUserSchema), getUser)
+  .patch(validate(updateUserSchema), updateUserById)
+  .delete(validate(deleteUserSchema), deleteUserById)
+userRouter
+  .route("/")
+  .get(getAllUsers)
+  .post(validate(createUserSchema), createUser)
+  .delete(deleteAllUsers)
 
 export default userRouter

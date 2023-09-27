@@ -23,6 +23,7 @@ export default class Paymob {
       return accessToken
     } catch (error) {
       console.error("Error authenticating:", (error as Error).message)
+      throw new AppError(400, "Error authenticating")
     }
   }
   async registerOrder(order_items: any, amount: number) {
@@ -34,7 +35,6 @@ export default class Paymob {
     const headers = {
       "Content-Type": "application/json",
     }
-    console.log(order_items)
     const orderData = {
       auth_token: accessToken,
       delivery_needed: "false",

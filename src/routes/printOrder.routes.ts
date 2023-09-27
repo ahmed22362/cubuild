@@ -8,17 +8,45 @@ import {
   getOneOrderPrint,
   updateOrderPrintStatus,
 } from "../controllers/orderPrint.controller"
+import validate from "../middleware/validateSchema"
+import {
+  createPrintOrderSchema,
+  deleteUserPrintOrderSchema,
+  getUserOnePrintOrderSchema,
+  getUserPrintOrdersSchema,
+  updateUserPrintOrderSchema,
+} from "../schema/printOrder.schema"
 const printOrderRouter = Router()
 
 printOrderRouter
   .route("/")
-  .post(protect, setProductORUserIds, createOrderPrint)
-  .get(protect, setProductORUserIds, getAllUserOrderPrint)
+  .post(
+    protect,
+    setProductORUserIds,
+    validate(createPrintOrderSchema),
+    createOrderPrint
+  )
+  .get(
+    protect,
+    setProductORUserIds,
+    validate(getUserPrintOrdersSchema),
+    getAllUserOrderPrint
+  )
 
 printOrderRouter
   .route("/:id")
-  .get(protect, getOneOrderPrint)
-  .patch(protect, restrictTo("admin"), updateOrderPrintStatus)
-  .delete(protect, restrictTo("admin"), deleteOrderPrint)
+  .get(protect, validate(getUserOnePrintOrderSchema), getOneOrderPrint)
+  .patch(
+    protect,
+    restrictTo("admin"),
+    validate(updateUserPrintOrderSchema),
+    updateOrderPrintStatus
+  )
+  .delete(
+    protect,
+    restrictTo("admin"),
+    validate(deleteUserPrintOrderSchema),
+    deleteOrderPrint
+  )
 
 export default printOrderRouter
