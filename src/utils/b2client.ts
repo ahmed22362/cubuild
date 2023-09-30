@@ -63,6 +63,7 @@ export default class B2Client {
   async deleteFile(fileId: string, fileName: string) {
     await this.getAuthToken()
     try {
+      console.log(fileId, fileName)
       await this.b2.deleteFileVersion({
         fileId,
         fileName,

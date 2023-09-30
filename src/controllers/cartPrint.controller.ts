@@ -92,17 +92,19 @@ export const deleteFileFromPrintCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { PrintCartItemId } = req.params
     const { fileName, b2FileId, user } = req.body
-    const keyId = process.env.B2_KEY_ID || ""
-    const applicationKey = process.env.B2_APPLICATION_KEY || ""
-    const b2client = new B2Client(keyId, applicationKey)
-    console.log(fileName, b2FileId, user)
-    await b2client.deleteFile(b2FileId, fileName)
-
+    const keyId = process.env.B2_KEY_ID as string
+    const applicationKey = process.env.B2_APPLICATION_KEY as string
     const updatedPrintCart = (await PrintCartModel.findByIdAndUpdate(
       { _id: PrintCartItemId, user: user },
       { $pull: { files: { b2FileId: b2FileId } } },
       { new: true }
     )) as IPrintCart
+    if (!updatedPrintCart) {
+      return next(new AppError(400, "Can't find cart with this id"))
+    }
+    const b2client = new B2Client(keyId, applicationKey)
+    await b2client.deleteFile(b2FileId, fileName)
+
     if (updatedPrintCart.files.length === 0) {
       await PrintCartModel.deleteOne({ _id: PrintCartItemId })
       return res.status(200).json({

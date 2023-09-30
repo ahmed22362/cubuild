@@ -13,7 +13,10 @@ import { uploadToB2 } from "../middleware/uploadB2"
 import { protect, restrictTo } from "../controllers/auth.controller"
 import validate from "../middleware/validateSchema"
 import {
+  addFileToPrintCartSchema,
+  adminUpdatePrintCartSchema,
   createPrintCartSchema,
+  deleteFileFromPrintCartSchema,
   getPrintCarItemSchema,
   getPrintCartSchema,
   updatePrintCartItemOptionsSchema,
@@ -61,13 +64,20 @@ PrintCartRouter.route("/:PrintCartItemId/file")
     protect,
     setProductORUserIds,
     uploadToB2,
+    validate(addFileToPrintCartSchema),
     addFilesToPrintCartItem
   )
-  .patch(protect, setProductORUserIds, deleteFileFromPrintCart)
+  .patch(
+    protect,
+    setProductORUserIds,
+    validate(deleteFileFromPrintCartSchema),
+    deleteFileFromPrintCart
+  )
 
 PrintCartRouter.route("/:PrintCartItemId/admin").patch(
   protect,
   restrictTo("admin"),
+  validate(adminUpdatePrintCartSchema),
   adminUpdatePrintCart
 )
 export default PrintCartRouter

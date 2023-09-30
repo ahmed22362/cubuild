@@ -13,6 +13,7 @@ import offerRouter from "./routes/offer.routes"
 import printOrderRouter from "./routes/printOrder.routes"
 import Paymob from "./payments/paymobStrategy"
 import payRouter from "./routes/pay.routes"
+import { getGoogleOAuthURL } from "./services/googleOauth.service"
 
 const API_TOKEN = process.env.PAYMOB_API as string
 
@@ -27,15 +28,21 @@ function routes(app: Express) {
     res.redirect(iFrame)
   })
   app.get("/signinwithgoogle", (req, res, next) => {
-    res.setHeader(
-      "Content-Security-Policy",
-      "script-src 'self' 'unsafe-inline'"
-    )
-
-    res.render("singInWithGoogle", {
-      redirect_uri: process.env.GOOGLE_REDIRECT_URL_LOCAL,
-      client_id: process.env.GOOGLE_CLIENT_ID,
+    const google_redirect_url = process.env.GOOGLE_REDIRECT_URL_PRO as string
+    const google_redirect_url_local = process.env
+      .GOOGLE_REDIRECT_URL_LOCAL as string
+    let runningRedirectLink = google_redirect_url
+    if (process.env.NODE_ENV?.trim() === "development") {
+      runningRedirectLink = google_redirect_url_local
+    }
+    console.log("this is redirect link", runningRedirectLink)
+    const client_id = process.env.GOOGLE_CLIENT_ID as string
+    const OAuthConsentURL = getGoogleOAuthURL({
+      redirect_uri: runningRedirectLink,
+      client_id,
     })
+    console.log("this is o auth consent url: ", OAuthConsentURL)
+    res.redirect(OAuthConsentURL)
   })
   app.use("/insertDummyData", dummyDataRouter)
   app.use("/api/v1/product", productRouter)

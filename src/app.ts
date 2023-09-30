@@ -11,6 +11,7 @@ import path from "path"
 import connectDB from "./utils/connectDB"
 import routes from "./routes"
 import logger from "./utils/logger"
+import cors from "cors"
 dotenv.config()
 
 const app = express()
@@ -68,6 +69,12 @@ app.use((req, res, next) => {
   }
   next()
 })
+app.use(
+  cors({
+    origin: "https://cubuild.net",
+    credentials: true,
+  })
+)
 
 app.get("/", (req, res) => {
   res.send(

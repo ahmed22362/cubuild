@@ -16,6 +16,7 @@ import {
   getGoogleOAuthTokens,
   getGoogleUser,
 } from "../services/googleOauth.service"
+import { create } from "domain"
 dotenv.config()
 
 export interface IRequestWithUser extends Request {
@@ -52,6 +53,7 @@ const createSendToken = ({
   if (process.env.NODE_ENV?.trim() === "production") {
     cookieOptions.secure = true
   }
+  console.log(cookieOptions)
   // remove the password from the user data to not send it in the response
   user.password = undefined
   user.role = undefined
@@ -62,6 +64,7 @@ const createSendToken = ({
   } else if (redirect) {
     return res.redirect(redirect)
   }
+
   res.status(200).json({ status: "success", token, data: user })
 }
 
@@ -277,6 +280,7 @@ export const googleOauthController = catchAsync(
           new: true,
         }
       )
+      logger.info({ user })
       // create an access token
       createSendToken({ user, redirect: "https://cubuild.net/", res })
     } catch (error: any) {

@@ -1,11 +1,5 @@
 import { object, string, number, array, TypeOf, z } from "zod"
 
-const fileSchema = object({
-  fileName: string().nonempty({ message: "Please provide name for the file" }),
-  b2FileUrl: string().nonempty({ message: "Please provide url for the file" }),
-  b2FileId: string().nonempty({ message: "Please provide B2 Id for the file" }),
-})
-
 const optionSchema = object({
   name: string(),
   values: array(string()),
@@ -40,4 +34,31 @@ export const updatePrintCartItemOptionsSchema = z.object({
       user: z.string(),
     })
     .partial({ options: true }),
+})
+export const addFileToPrintCartSchema = z.object({
+  params: z.object({
+    PrintCartItemId: z.string({
+      required_error: "Please insert the id of the cart into params",
+    }),
+  }),
+  body: z.object({
+    user: z.string({
+      required_error: "Insert the ID of the user in the body!",
+    }),
+  }),
+})
+export const deleteFileFromPrintCartSchema = z.object({
+  body: z.object({
+    fileName: z.string({ required_error: "Please add file name!" }),
+    b2FileId: z.string({ required_error: "please add file b2 id" }),
+    user: z.string({ required_error: "Add user id to the body!" }),
+  }),
+})
+export const adminUpdatePrintCartSchema = z.object({
+  body: z.object({
+    status: z.string({
+      required_error: "update the Status of the print cart!",
+    }),
+    price: z.number({ required_error: "Add price to the print cart!" }),
+  }),
 })
