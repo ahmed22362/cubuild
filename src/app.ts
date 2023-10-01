@@ -69,12 +69,13 @@ app.use((req, res, next) => {
   }
   next()
 })
-app.use(
-  cors({
-    origin: "https://cubuild.net",
-    credentials: true,
-  })
-)
+// disable core for the front local dev
+// app.use(
+//   cors({
+//     origin: "https://cubuild.net",
+//     credentials: true,
+//   })
+// )
 
 app.get("/", (req, res) => {
   res.send(
