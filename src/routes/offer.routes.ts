@@ -7,13 +7,18 @@ import {
   updateOffer,
 } from "../controllers/offer.controller"
 import { protect, restrictTo } from "../controllers/auth.controller"
+import validate from "../middleware/validateSchema"
+import { createOfferSchema, updateOfferSchema } from "../schema/offer.schema"
 const offerRouter = Router()
 
 offerRouter.use(protect, restrictTo("admin"))
-offerRouter.route("/").post(createOffer).get(getAllOffers)
+offerRouter
+  .route("/")
+  .post(validate(createOfferSchema), createOffer)
+  .get(getAllOffers)
 offerRouter
   .route("/:id")
-  .patch(updateOffer)
+  .patch(validate(updateOfferSchema), updateOffer)
   .delete(deleteOffer)
   .get(getOneOffer)
 

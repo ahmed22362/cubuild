@@ -4,10 +4,10 @@ import catchAsync from "../utils/catchAsync"
 import mongoose from "mongoose"
 import AppError from "../utils/AppError"
 import logger from "../utils/logger"
+import Product from "../models/product.model"
 
 export const getCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body)
     const cart = await findCartOrCreate(req.body.user)
     res.status(200).json({ status: "success", data: cart })
   }
@@ -16,6 +16,10 @@ export const addItemToCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { product, quantity, user } = req.body
     const cart = await findCartOrCreate(user)
+    const existProduct = await Product.findById(product)
+    if (!existProduct) {
+      return next(new AppError(404, "There is no product with this id"))
+    }
     const item = {
       _id: new mongoose.Types.ObjectId(),
       product,
@@ -108,7 +112,7 @@ const saveCartAndPopulate = async (res: Response, cart: ICart) => {
 
   await cart.populate({
     path: "items.product",
-    select: "title price images",
+    select: "title price coverImage",
   })
   res.status(200).json({ status: "success", data: cart })
 }

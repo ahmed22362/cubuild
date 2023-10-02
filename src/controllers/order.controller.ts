@@ -14,8 +14,9 @@ const API_TOKEN = process.env.PAYMOB_API as string
 
 export const createOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { user, shipping, shippingPrice } = req.body
+    const { user, shipping } = req.body
     // remove shippingPrice make it automated
+    let shippingPrice = 49
     const cart = await Cart.findOne({ user: user }).populate({
       path: "items.product",
       select: "title price description quantity",
@@ -94,7 +95,7 @@ const calculateTotal = async function (cart: ICart) {
     // Get product price from database
     const product = await Product.findById(item.product)
     if (!product) {
-      return new AppError(
+      throw new AppError(
         400,
         "Can't find this product with the id in calculate total price"
       )

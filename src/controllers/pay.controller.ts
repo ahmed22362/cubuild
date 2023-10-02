@@ -64,8 +64,9 @@ export const payPostCallBack = catchAsync(
       },
       success,
     } = req.body.obj
-
+    console.log(req.body)
     // Create a lexicographical string with the order specified by Paymob @ https://docs.paymob.com/docs/hmac-calculation
+    //id=135607088&pending=false&amount_cents=12700&success=true&is_auth=false&is_capture=false&is_standalone_payment=true&is_voided=false&is_refunded=false&is_3d_secure=true&integration_id=3759176&profile_id=761726&has_parent_transaction=false&order=154456197&created_at=2023-10-02T16%3A22%3A27.221106&currency=EGP&merchant_commission=0&discount_details=%5B%5D&is_void=false&is_refund=false&error_occured=false&refunded_amount_cents=0&captured_amount=0&updated_at=2023-10-02T16%3A22%3A49.749686&is_settled=false&bill_balanced=false&is_bill=false&owner=1312639&data.message=Approved&source_data.type=card&source_data.pan=2346&source_data.sub_type=MasterCard&acq_response_code=00&txn_response_code=APPROVED&hmac=b1de086f1cc59cfca085a83f48254a4df3ac208ccbd141d79db80143d77debc270d72f553407907afebf13d973427c110447836924dd5e09d250a624d968f154
     let lexicographical =
       amount_cents +
       created_at +
@@ -132,8 +133,12 @@ export const payPostCallBack = catchAsync(
           )
         )
       }
-      // check success of the transaction TODO
-      order.status = CustomOrderStatus.shipping
+      if (success) {
+        order.status = CustomOrderStatus.shipping
+      } else {
+        order.status = CustomOrderStatus.Pending
+      }
+
       await order.save()
       // send mail to the user abut the order
       const user = await User.findById(order.user)
