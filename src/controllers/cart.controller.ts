@@ -9,6 +9,10 @@ import Product from "../models/product.model"
 export const getCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const cart = await findCartOrCreate(req.body.user)
+    await cart.populate({
+      path: "items.product",
+      select: "title price coverImage",
+    })
     res.status(200).json({ status: "success", data: cart })
   }
 )
