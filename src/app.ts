@@ -17,17 +17,18 @@ dotenv.config()
 const app = express()
 //config.get<number>("PORT")
 // Get the PORT value from the environment variable
-const portString = process.env.PORT
+const portString = process.env.PORT as string
 
 // Convert the PORT string to a number (if it's defined and valid)
-const PORT: number | undefined = portString
-  ? parseInt(portString, 10)
-  : undefined
+const PORT: number = parseInt(portString, 10) as number
 
 if (PORT !== undefined && isNaN(PORT)) {
   // Handle the case where the PORT value is not a valid number
   console.error("Invalid PORT value:", portString)
 }
+
+// Set trust proxy to true to trust proxy headers
+app.set("trust proxy", true)
 // Set security HTTP headers
 app.use(helmet())
 // Parse incoming request bodies
