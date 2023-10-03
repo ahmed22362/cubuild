@@ -55,7 +55,7 @@ class Mail {
   async send(template: ITemplate, subject: string) {
     let html = template.html
     const mailOptions = {
-      from: "HR <ceo@codegate.info>", // sender address
+      from: "Support <info@codegate.info>", // sender address
       to: this.to, // list of receivers
       subject: subject, // Subject line
       text: template.text || "", // plain text body
@@ -77,7 +77,7 @@ class Mail {
       this.url as string,
       this.name
     )
-    let info = await this.send(forgetTemplate, "Welcome To CuBuild")
+    let info = await this.send(forgetTemplate, "Password Reset Request!")
     if (process.env.NODE_ENV === "development") {
       console.log("Message sent: %s", info.messageId)
       console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
