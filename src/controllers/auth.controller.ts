@@ -175,7 +175,6 @@ export const forgetPassword = catchAsync(
     }
     const resetToken: string = user.generatePasswordResetToken()
     await user.save() // saved the hashed token in the user document
-
     //send the mail
     const resetURL: string = `${req.protocol}://${req.get(
       "host"
@@ -210,7 +209,10 @@ export const resetPassword = catchAsync(
       passwordResetTokenExpires: { $gt: Date.now() },
     })
     if (!user) {
-      return res.render("resetPasswordError")
+      return res.render("resetPasswordError", { error: "Link is not valid!" })
+    }
+    if (user.passwordResetToken !== hashedToken) {
+      return res.render("resetPasswordError", { error: "Link is not valid!" })
     }
     // Validate the new password and confirmation
     if (password !== passwordConfirmation) {

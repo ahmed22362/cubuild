@@ -126,9 +126,7 @@ const userSchema = new mongoose.Schema<IUserDocument>(
 )
 
 function updateBillingData(user: IUserDocument) {
-  console.log("in pre save")
   const checkAvailable = (item: string) => {
-    console.log(item, item && item !== "NA")
     return item && item !== "NA"
   }
   // Billing firstName

@@ -35,13 +35,11 @@ function routes(app: Express) {
     if (process.env.NODE_ENV?.trim() === "development") {
       runningRedirectLink = google_redirect_url_local
     }
-    console.log("this is redirect link", runningRedirectLink)
     const client_id = process.env.GOOGLE_CLIENT_ID as string
     const OAuthConsentURL = getGoogleOAuthURL({
       redirect_uri: runningRedirectLink,
       client_id,
     })
-    console.log("this is o auth consent url: ", OAuthConsentURL)
     res.redirect(OAuthConsentURL)
   })
   app.use("/insertDummyData", dummyDataRouter)

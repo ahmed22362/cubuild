@@ -38,6 +38,12 @@ app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
 if (process.env.NODE_ENV?.trim() === "development") {
   app.use(morgan("dev"))
+} else {
+  app.use(
+    morgan(
+      ":date[web] :remote-addr :method :url :status :response-time ms - :res[content-length]"
+    )
+  )
 }
 // set rate limiter for the ips to secure from Brute-force attack
 const limiter = rateLimit({
