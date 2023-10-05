@@ -20,27 +20,33 @@ export const addItemToCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { product, quantity, user } = req.body
     const cart = await findCartOrCreate(user)
+    if (!product) {
+      throw new AppError(400, "Enter Valid product Id!")
+    }
     const existProduct = await Product.findById(product)
     if (!existProduct) {
       return next(new AppError(404, "There is no product with this id"))
     }
     const item = {
       _id: new mongoose.Types.ObjectId(),
-      product,
+      product: existProduct._id,
       quantity: quantity,
     }
-    const existingItem: ICartItem | undefined = cart.items.find((item) =>
-      item.product.equals(product)
-    )
+    const existingItem: ICartItem | undefined = cart.items.find((item) => {
+      // product may be null and crash the server i don't know why yet!
+      if (item.product) {
+        return item.product.equals(product)
+      }
+    })
 
     if (existingItem) {
       // Increment quantity of existing item
       existingItem.quantity++
+      await saveCartAndPopulate(res, cart, "product already exist and")
     } else {
       // Product doesn't exist, push new item
       cart.items.push(item)
     }
-    await saveCartAndPopulate(res, cart)
   }
 )
 
@@ -67,7 +73,7 @@ export const UpdateItemFromCart = catchAsync(
     // Update quantity
     cart.items[itemIndex].quantity = quantity
 
-    await saveCartAndPopulate(res, cart)
+    await saveCartAndPopulate(res, cart, "card updated successfully")
   }
 )
 
@@ -88,13 +94,18 @@ export const deleteItemFromCart = catchAsync(
 
     // Remove file from document using $pull features from mongoDB
     const cart = await findCartOrCreate(req.body.user)
+    const itemToRemove = cart.items.find((item) => item._id.equals(itemId))
+
+    if (!itemToRemove) {
+      throw new AppError(404, `Item with ID ${itemId} not found in the cart`)
+    }
     const updatedCart = (await Cart.findByIdAndUpdate(
       { _id: cart.id },
       { $pull: { items: { _id: itemId } } },
       { new: true }
     )) as ICart
 
-    await saveCartAndPopulate(res, updatedCart)
+    await saveCartAndPopulate(res, updatedCart, "Item deleted successfully!")
   }
 )
 
@@ -110,7 +121,11 @@ export const deleteAllItemsFromCart = catchAsync(
     })
   }
 )
-const saveCartAndPopulate = async (res: Response, cart: ICart) => {
+const saveCartAndPopulate = async (
+  res: Response,
+  cart: ICart,
+  message: string
+) => {
   // Save cart
   await cart.save()
 
@@ -118,7 +133,7 @@ const saveCartAndPopulate = async (res: Response, cart: ICart) => {
     path: "items.product",
     select: "title price coverImage",
   })
-  res.status(200).json({ status: "success", data: cart })
+  res.status(200).json({ status: "success", data: cart, message })
 }
 const findCartOrCreate = async (userID: string) => {
   try {

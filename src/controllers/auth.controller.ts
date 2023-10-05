@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction, CookieOptions } from "express"
 import catchAsync from "../utils/catchAsync"
 import User, {
   IUserDocument,
@@ -43,10 +43,11 @@ const createSendToken = ({
   const millSecToDay: number = 24 * 60 * 60 * 1000
   // const cookieExpire = config.get<number>("JWT_COOKIES_EXPIRES")
   const cookieExpire = process.env.JWT_COOKIES_EXPIRES as any
-  let cookieOptions = {
+  let cookieOptions: CookieOptions = {
     expires: new Date(Date.now() + cookieExpire * millSecToDay),
     httpOnly: true,
     secure: false,
+    domain: ".cubuild.net",
   }
 
   // local host is not https so for test purpose we will make this if statement
@@ -58,13 +59,14 @@ const createSendToken = ({
   user.password = undefined
   user.role = undefined
   // set cookies
+
+  res.cookie("anything","this is a test cookie")
   res.cookie("token", token, cookieOptions)
   if (statusCode) {
     return res.status(statusCode).json({ status: "success", token, data: user })
   } else if (redirect) {
     return res.redirect(redirect)
   }
-
   res.status(200).json({ status: "success", token, data: user })
 }
 
