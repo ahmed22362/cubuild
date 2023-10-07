@@ -47,7 +47,7 @@ const createSendToken = ({
     expires: new Date(Date.now() + cookieExpire * millSecToDay),
     httpOnly: true,
     secure: false,
-    domain: ".cubuild.net",
+    domain: "cubuild.net",
   }
 
   // local host is not https so for test purpose we will make this if statement
@@ -60,7 +60,7 @@ const createSendToken = ({
   user.role = undefined
   // set cookies
 
-  res.cookie("anything","this is a test cookie")
+  res.cookie("anything", "this is a test cookie")
   res.cookie("token", token, cookieOptions)
   if (statusCode) {
     return res.status(statusCode).json({ status: "success", token, data: user })
