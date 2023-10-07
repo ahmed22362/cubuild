@@ -232,6 +232,7 @@ export const resetPassword = catchAsync(
 
 export const updatePassword = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const { currentPassword, newPassword } = req.body
     const user = await User.findById(req.user!._id).select("+password")
     if (!user) {
       return next(
@@ -241,13 +242,11 @@ export const updatePassword = catchAsync(
         )
       )
     }
-    if (
-      !(await user.comparePassword(req.body.currentPassword, user.password))
-    ) {
+    if (!(await user.comparePassword(currentPassword, user.password))) {
       return next(new AppError(400, "Your current password is wrong"))
     }
     // 3) If so, update password
-    user.password = req.body.currentPassword
+    user.password = newPassword
     await user.save()
     // User.findByIdAndUpdate will NOT work as intended!
 

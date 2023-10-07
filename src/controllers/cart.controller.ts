@@ -38,7 +38,6 @@ export const addItemToCart = catchAsync(
         return item.product.equals(product)
       }
     })
-
     if (existingItem) {
       // Increment quantity of existing item
       existingItem.quantity++
