@@ -47,14 +47,13 @@ const createSendToken = ({
     expires: new Date(Date.now() + cookieExpire * millSecToDay),
     httpOnly: true,
     secure: false,
-    domain: "cubuild.net",
+    domain: ".cubuild.net",
   }
 
   // local host is not https so for test purpose we will make this if statement
   if (process.env.NODE_ENV?.trim() === "production") {
     cookieOptions.secure = true
   }
-  console.log(cookieOptions)
   // remove the password from the user data to not send it in the response
   user.password = undefined
   user.role = undefined

@@ -1,4 +1,4 @@
-import express, { NextFunction, Response, Request } from "express"
+import express from "express"
 import bodyParser from "body-parser"
 import morgan from "morgan"
 import helmet from "helmet"
@@ -64,12 +64,14 @@ app.use(mongoSanitize())
 // app.use(sanitizeRequestData)// i comment it because it make problem with params it return it as object object
 
 app.set("trust proxy", false)
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Expose-Headers", "x-total-count")
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH")
-  res.header("Access-Control-Allow-Headers", "Content-Type,authorization")
-
+app.use((req, res, next) => {
+  res.set("Access-Control-Allow-Origin", "*")
+  res.set("Access-Control-Expose-Headers", "x-total-count")
+  res.set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH,OPTIONS")
+  res.set("Access-Control-Allow-Headers", "Content-Type,authorization")
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200)
+  }
   next()
 })
 // disable core for the front local dev

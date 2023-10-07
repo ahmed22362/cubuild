@@ -42,10 +42,19 @@ export const addItemToCart = catchAsync(
     if (existingItem) {
       // Increment quantity of existing item
       existingItem.quantity++
-      await saveCartAndPopulate(res, cart, "product already exist and")
+      await saveCartAndPopulate({
+        res,
+        cart,
+        message: "product already exist and",
+      })
     } else {
       // Product doesn't exist, push new item
       cart.items.push(item)
+      await saveCartAndPopulate({
+        res,
+        cart,
+        message: "Product Add Successfully!",
+      })
     }
   }
 )
@@ -73,7 +82,11 @@ export const UpdateItemFromCart = catchAsync(
     // Update quantity
     cart.items[itemIndex].quantity = quantity
 
-    await saveCartAndPopulate(res, cart, "card updated successfully")
+    await saveCartAndPopulate({
+      res,
+      cart,
+      message: "card updated successfully",
+    })
   }
 )
 
@@ -105,7 +118,11 @@ export const deleteItemFromCart = catchAsync(
       { new: true }
     )) as ICart
 
-    await saveCartAndPopulate(res, updatedCart, "Item deleted successfully!")
+    await saveCartAndPopulate({
+      res,
+      cart: updatedCart,
+      message: "Item deleted successfully!",
+    })
   }
 )
 
@@ -121,11 +138,15 @@ export const deleteAllItemsFromCart = catchAsync(
     })
   }
 )
-const saveCartAndPopulate = async (
-  res: Response,
-  cart: ICart,
-  message: string
-) => {
+const saveCartAndPopulate = async ({
+  res,
+  cart,
+  message,
+}: {
+  res: Response
+  cart: ICart
+  message?: string
+}) => {
   // Save cart
   await cart.save()
 
