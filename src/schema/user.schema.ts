@@ -4,8 +4,11 @@ import { addressSchema } from "./address.schema"
 const payload = {
   body: z
     .object({
-      name: z.string({
-        required_error: "Name is required",
+      fName: z.string({
+        required_error: "First name is required",
+      }),
+      lName: z.string({
+        required_error: "Last name is required",
       }),
       password: z
         .string({
