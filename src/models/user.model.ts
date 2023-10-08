@@ -34,7 +34,8 @@ interface IBillingData extends mongoose.Document {
 }
 
 export interface IUserInput {
-  name: string
+  fName: string
+  lName: string
   email: string
   password: string
   phoneNumber: string
@@ -43,7 +44,8 @@ export interface IUserInput {
 }
 
 export interface IUserResponse {
-  name: string
+  fName: string
+  lName: string
   email: string
   address: Address
   phoneNumber: string
@@ -68,7 +70,8 @@ export interface IUserDocument extends IUserInput, mongoose.Document {
 
 const userSchema = new mongoose.Schema<IUserDocument>(
   {
-    name: { type: String, required: true },
+    fName: { type: String, required: true },
+    lName: { type: String, required: true },
     email: {
       type: String,
       required: true,
@@ -131,14 +134,13 @@ function updateBillingData(user: IUserDocument) {
   }
   // Billing firstName
   if (!checkAvailable(user.billing.first_name)) {
-    user.billing.first_name = user.name
+    user.billing.first_name = user.fName
   }
 
   // Billing lastName
   if (!checkAvailable(user.billing.last_name)) {
     // Split name on space to get last name
-    const nameParts = user.name.split(" ")
-    user.billing.last_name = nameParts[nameParts.length - 1]
+    user.billing.last_name = user.lName
   }
 
   // Billing email
@@ -224,7 +226,8 @@ userSchema.methods.generatePasswordResetToken = function () {
 }
 userSchema.post("save", async function () {
   let user = this as IUserDocument
-  if (user.isNew) await new Mail(user.email, user.name).sendWelcome()
+  if (user.isNew)
+    await new Mail(user.email, `${user.fName} ${user.lName}`).sendWelcome()
 })
 const User = mongoose.model<IUserDocument>("User", userSchema)
 

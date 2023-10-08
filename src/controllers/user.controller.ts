@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import catchAsync from "../utils/catchAsync"
-import User, { IUserInput } from "../models/user.model"
-import logger from "../utils/logger"
-import AppError from "../utils/AppError"
+import User from "../models/user.model"
+
 import { IRequestWithUser } from "./auth.controller"
 import {
   createOne,

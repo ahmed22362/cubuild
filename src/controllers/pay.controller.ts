@@ -147,10 +147,10 @@ export const payPostCallBack = catchAsync(
           new AppError(400, "Can't find user connected with this order")
         )
       }
-      await new Mail(user.email, user.name).sendConfirmOrder(
-        order,
-        order.totalCost
-      )
+      await new Mail(
+        user.email,
+        `${user.fName} ${user.lName}`
+      ).sendConfirmOrder(order, order.totalCost)
       return res.sendStatus(200)
     }
     res.sendStatus(400)

@@ -1,7 +1,6 @@
 import { Request, NextFunction, Response } from "express"
 import catchAsync from "../utils/catchAsync"
 import Order from "../models/order.model"
-import { IRequestWithUser } from "./auth.controller"
 import Cart, { ICart } from "../models/cart.model"
 import Product from "../models/product.model"
 import AppError from "../utils/AppError"

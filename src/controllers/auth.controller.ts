@@ -74,11 +74,19 @@ export const signup = catchAsync(async function (
   res: Response,
   next: NextFunction
 ) {
-  const { name, email, password, address, billing, phoneNumber }: IUserInput =
-    req.body
+  const {
+    fName,
+    lName,
+    email,
+    password,
+    address,
+    billing,
+    phoneNumber,
+  }: IUserInput = req.body
 
   const userData: IUserInput = {
-    name,
+    fName,
+    lName,
     email,
     password,
     address,
@@ -181,7 +189,7 @@ export const forgetPassword = catchAsync(
       "host"
     )}/api/v1/user/auth/resetPassword/${resetToken}`
     try {
-      const mail = new Mail(user.email, user.name, resetURL)
+      const mail = new Mail(user.email, `${user.fName} ${user.lName}`, resetURL)
       await mail.sendForgetPassword()
       res.status(200).json({ status: "success", message: "token sent to mail" })
     } catch (e) {
