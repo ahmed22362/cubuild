@@ -249,7 +249,6 @@ export const updatePassword = catchAsync(
     user.password = newPassword
     await user.save()
     // User.findByIdAndUpdate will NOT work as intended!
-
     // 4) Log user in, send JWT
     createSendToken({ user, statusCode: 200, res })
   }

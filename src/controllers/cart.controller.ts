@@ -44,7 +44,7 @@ export const addItemToCart = catchAsync(
       await saveCartAndPopulate({
         res,
         cart,
-        message: "product already exist and",
+        message: "product exists and it's quantity increased by 1 !",
       })
     } else {
       // Product doesn't exist, push new item
