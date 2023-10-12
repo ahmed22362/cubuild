@@ -21,7 +21,7 @@ function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.sendStatus(200)
   })
-  app.get("/test", async (req, res) => {
+  app.get("/test_payment", async (req, res) => {
     const paymob = new Paymob(API_TOKEN)
     const orderId = await paymob.registerOrder([], 3403)
     const iFrame = await paymob.payWithCard(5493, {}, orderId)

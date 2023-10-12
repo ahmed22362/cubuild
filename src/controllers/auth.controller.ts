@@ -58,8 +58,7 @@ const createSendToken = ({
   user.password = undefined
   user.role = undefined
   // set cookies
-
-  res.cookie("anything", "this is a test cookie")
+  res.cookie("user", user, cookieOptions)
   res.cookie("token", token, cookieOptions)
   if (statusCode) {
     return res.status(statusCode).json({ status: "success", token, data: user })
