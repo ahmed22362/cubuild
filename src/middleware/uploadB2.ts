@@ -19,6 +19,9 @@ export const uploadToB2 = catchAsync(
     const keyId = process.env.B2_KEY_ID || ""
     const applicationKey = process.env.B2_APPLICATION_KEY || ""
     const b2client = new B2Client(keyId, applicationKey)
+    if (!files) {
+      return next(new AppError(400, "There is no files to upload!"))
+    }
     const uploadPromises = files.map(async (file) => {
       file.originalname = sanitizeFilename(file.originalname)
       return await b2client.uploadFile(file)

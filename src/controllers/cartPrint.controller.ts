@@ -13,6 +13,7 @@ dotenv.config()
 export const uploadUserFile = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const { options, description } = req.body
+    console.log(res.locals)
     const files = res.locals.fileData.map((file: any) => {
       return {
         fileName: file.fileName,
