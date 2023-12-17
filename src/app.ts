@@ -28,7 +28,7 @@ if (PORT !== undefined && isNaN(PORT)) {
 }
 
 // Set trust proxy to true to trust proxy headers
-app.set("trust proxy", true);
+app.enable("trust proxy");
 // Set security HTTP headers
 app.use(helmet());
 // Parse incoming request bodies
