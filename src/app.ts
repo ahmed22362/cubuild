@@ -53,6 +53,7 @@ const limiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: "too many requests from the same IP, Please try again in one hour",
+  validate: false,
 });
 // Apply the rate limiting middleware to all requests
 app.use(limiter);
@@ -66,7 +67,11 @@ app.use(mongoSanitize());
 app.set("trust proxy", false);
 app.use(
   cors({
-    origin: [/http:\/\/localhost:\d*/, "https://cubuild.net"],
+    origin: [
+      /http:\/\/localhost:\d*/,
+      "https://cubuild.net",
+      "https://cubeart.vercel.app/",
+    ],
     optionsSuccessStatus: 200,
   }),
 );
