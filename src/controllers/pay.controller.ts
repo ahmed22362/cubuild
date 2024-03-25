@@ -1,42 +1,42 @@
-import { Request, Response, NextFunction } from "express"
-import catchAsync from "../utils/catchAsync"
-import PrintOrderModel from "../models/printOrder.model"
-import AppError from "../utils/AppError"
-import Paymob from "../payments/paymobStrategy"
-import dotenv from "dotenv"
-import { createHmac } from "crypto"
+import { Request, Response, NextFunction } from "express";
+import catchAsync from "../utils/catchAsync";
+import PrintOrderModel from "../models/printOrder.model";
+import AppError from "../utils/AppError";
+import Paymob from "../payments/paymobStrategy";
+import dotenv from "dotenv";
+import { createHmac } from "crypto";
 
-import { IRequestWithUser } from "./auth.controller"
-import PaymobTransaction from "../models/paymob.transaction.model"
-import OrderModel from "../models/order.model"
-import { CustomOrderStatus } from "../models/printCart.model"
-import User from "../models/user.model"
-import Mail from "../utils/sendmail"
-dotenv.config()
+import { IRequestWithUser } from "./auth.controller";
+import PaymobTransaction from "../models/paymob.transaction.model";
+import OrderModel from "../models/order.model";
+import { CustomOrderStatus } from "../models/printCart.model";
+import User from "../models/user.model";
+import Mail from "../utils/sendmail";
+dotenv.config();
 
-const API_TOKEN = process.env.PAYMOB_API as string
+const API_TOKEN = process.env.PAYMOB_API as string;
 export const payOrder = catchAsync(
   async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const { orderId } = req.body
-    let billingData = req.body.billingData
-    let order = await PrintOrderModel.findById(orderId)
+    const { orderId } = req.body;
+    let billingData = req.body.billingData;
+    let order = await PrintOrderModel.findById(orderId);
     if (!order) {
-      order = await OrderModel.findById(orderId)
+      order = await OrderModel.findById(orderId);
     }
     if (!order) {
-      return next(new AppError(400, "can't find the order!"))
+      return next(new AppError(400, "can't find the order!"));
     }
     if (!billingData) {
-      billingData = req.user?.billing
+      billingData = req.user?.billing;
     }
     const iFrameLink = await new Paymob(API_TOKEN).payWithCard(
       order.totalCost,
       billingData,
-      order.paymobOrderId
-    )
-    res.status(200).json({ status: "success", redirect_link: iFrameLink })
-  }
-)
+      order.paymobOrderId,
+    );
+    res.status(200).json({ status: "success", redirect_link: iFrameLink });
+  },
+);
 export const payPostCallBack = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // Get the transaction details from the request body
@@ -63,8 +63,8 @@ export const payPostCallBack = catchAsync(
         type: source_data_type,
       },
       success,
-    } = req.body.obj
-    console.log(req.body)
+    } = req.body.obj;
+    console.log(req.body);
     // Create a lexicographical string with the order specified by Paymob @ https://docs.paymob.com/docs/hmac-calculation
     //id=135607088&pending=false&amount_cents=12700&success=true&is_auth=false&is_capture=false&is_standalone_payment=true&is_voided=false&is_refunded=false&is_3d_secure=true&integration_id=3759176&profile_id=761726&has_parent_transaction=false&order=154456197&created_at=2023-10-02T16%3A22%3A27.221106&currency=EGP&merchant_commission=0&discount_details=%5B%5D&is_void=false&is_refund=false&error_occured=false&refunded_amount_cents=0&captured_amount=0&updated_at=2023-10-02T16%3A22%3A49.749686&is_settled=false&bill_balanced=false&is_bill=false&owner=1312639&data.message=Approved&source_data.type=card&source_data.pan=2346&source_data.sub_type=MasterCard&acq_response_code=00&txn_response_code=APPROVED&hmac=b1de086f1cc59cfca085a83f48254a4df3ac208ccbd141d79db80143d77debc270d72f553407907afebf13d973427c110447836924dd5e09d250a624d968f154
     let lexicographical =
@@ -87,12 +87,12 @@ export const payPostCallBack = catchAsync(
       source_data_pan +
       source_data_sub_type +
       source_data_type +
-      success
-    const HMAC_KEY = process.env.PAYMOB_HMAC_KEY as string
+      success;
+    const HMAC_KEY = process.env.PAYMOB_HMAC_KEY as string;
     // Create a hash using the Lexicographical string and the HMAC key
     let hash = createHmac("sha512", HMAC_KEY)
       .update(lexicographical)
-      .digest("hex")
+      .digest("hex");
 
     // Compare the hash with the hmac sent by Paymob to verify the request is authentic
     if (hash === req.query.hmac) {
@@ -118,41 +118,41 @@ export const payPostCallBack = catchAsync(
         source_data_sub_type,
         source_data_type,
         success,
-      })
-      await payment.save()
+      });
+      await payment.save();
       // update order status
-      let order = await OrderModel.findOne({ paymobOrderId: order_id })
+      let order = await OrderModel.findOne({ paymobOrderId: order_id });
       if (!order) {
-        order = await PrintOrderModel.findOne({ paymobOrderId: order_id })
+        order = await PrintOrderModel.findOne({ paymobOrderId: order_id });
       }
       if (!order) {
         return next(
           new AppError(
             400,
-            "Theres is some thing wrong while updating order status!"
-          )
-        )
+            "Theres is some thing wrong while updating order status!",
+          ),
+        );
       }
       if (success) {
-        order.status = CustomOrderStatus.shipping
+        order.status = CustomOrderStatus.shipping;
       } else {
-        order.status = CustomOrderStatus.Pending
+        order.status = CustomOrderStatus.Pending;
       }
 
-      await order.save()
+      await order.save();
       // send mail to the user abut the order
-      const user = await User.findById(order.user)
+      const user = await User.findById(order.user);
       if (!user) {
         throw next(
-          new AppError(400, "Can't find user connected with this order")
-        )
+          new AppError(400, "Can't find user connected with this order"),
+        );
       }
-      await new Mail(
-        user.email,
-        `${user.fName} ${user.lName}`
-      ).sendConfirmOrder(order, order.totalCost)
-      return res.sendStatus(200)
+      await new Mail(user.email, user.name).sendConfirmOrder(
+        order,
+        order.totalCost,
+      );
+      return res.sendStatus(200);
     }
-    res.sendStatus(400)
-  }
-)
+    res.sendStatus(400);
+  },
+);

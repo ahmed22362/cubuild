@@ -1,77 +1,74 @@
-import mongoose from "mongoose"
-import bcrypt from "bcrypt"
-import logger from "../utils/logger"
-import crypto from "crypto"
-import Mail from "../utils/sendmail"
-import dotenv from "dotenv"
-import convert from "../utils/convertEnvStrToNum"
-dotenv.config()
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import logger from "../utils/logger";
+import crypto from "crypto";
+import Mail from "../utils/sendmail";
+import dotenv from "dotenv";
+import convert from "../utils/convertEnvStrToNum";
+dotenv.config();
 
 export interface Address extends mongoose.Document {
-  street: string
-  city: string
-  country: string
+  street: string;
+  city: string;
+  country: string;
   location: {
-    type: "Point"
-    coordinates: [number, number] // long, lat
-  }
+    type: "Point";
+    coordinates: [number, number]; // long, lat
+  };
 }
-
 interface IBillingData extends mongoose.Document {
-  apartment: string
-  email: string
-  floor: string
-  first_name: string
-  street: string
-  building: string
-  phone_number: string
-  shipping_method: string
-  postalCode: string
-  city: string
-  country: string
-  last_name: string
-  state: string
+  apartment: string;
+  email: string;
+  floor: string;
+  first_name: string;
+  street: string;
+  building: string;
+  phone_number: string;
+  shipping_method: string;
+  postalCode: string;
+  city: string;
+  country: string;
+  last_name: string;
+  state: string;
 }
 
 export interface IUserInput {
-  fName: string
-  lName: string
-  email: string
-  password: string
-  phoneNumber: string
-  address: Address
-  billing: IBillingData
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  address: Address;
+  billing: IBillingData;
 }
 
 export interface IUserResponse {
-  fName: string
-  lName: string
-  email: string
-  address: Address
-  phoneNumber: string
-  _id: string
-  password: string | undefined
-  role: string | undefined
+  fName: string;
+  lName: string;
+  email: string;
+  address: Address;
+  phoneNumber: string;
+  _id: string;
+  password: string | undefined;
+  role: string | undefined;
 }
 export interface IUserDocument extends IUserInput, mongoose.Document {
-  createdAt: Date
-  UpdatedAt: Date
-  passwordChangedAt: number
-  role: string
-  passwordResetToken: string | undefined
-  passwordResetTokenExpires: number | undefined
+  createdAt: Date;
+  UpdatedAt: Date;
+  passwordChangedAt: number;
+  role: string;
+  passwordResetToken: string | undefined;
+  passwordResetTokenExpires: number | undefined;
   comparePassword(
     candidatePassword: string,
-    userHashedPassword: string
-  ): Promise<Boolean>
-  isPasswordChangedAfter(JWTTimestamp: number): boolean
-  generatePasswordResetToken(): string
+    userHashedPassword: string,
+  ): Promise<Boolean>;
+  isPasswordChangedAfter(JWTTimestamp: number): boolean;
+  generatePasswordResetToken(): string;
 }
 
 const userSchema = new mongoose.Schema<IUserDocument>(
   {
-    fName: { type: String, required: true },
-    lName: { type: String, required: true },
+    name: { type: String, required: true },
     email: {
       type: String,
       required: true,
@@ -125,110 +122,109 @@ const userSchema = new mongoose.Schema<IUserDocument>(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
-)
+  },
+);
 
 function updateBillingData(user: IUserDocument) {
   const checkAvailable = (item: string) => {
-    return item && item !== "NA"
-  }
+    return item && item !== "NA";
+  };
   // Billing firstName
   if (!checkAvailable(user.billing.first_name)) {
-    user.billing.first_name = user.fName
+    user.billing.first_name = user.name.split(" ")[0];
   }
 
   // Billing lastName
   if (!checkAvailable(user.billing.last_name)) {
     // Split name on space to get last name
-    user.billing.last_name = user.lName
+    user.billing.last_name = user.name.split(" ")[1];
   }
 
   // Billing email
   if (!checkAvailable(user.billing.email)) {
-    user.billing.email = user.email
+    user.billing.email = user.email;
   }
   // Billing phone
   if (!checkAvailable(user.billing.phone_number)) {
-    user.billing.phone_number = user.phoneNumber
+    user.billing.phone_number = user.phoneNumber;
   }
 }
 
 userSchema.pre("save", function (next) {
-  updateBillingData(this)
-  return next()
-})
+  updateBillingData(this);
+  return next();
+});
 
 userSchema.pre("save", async function (next) {
-  let user = this as IUserDocument
+  let user = this as IUserDocument;
   if (!user.isModified("password")) {
-    return next()
+    return next();
   }
-  const saltWork: number | undefined = convert(process.env.saltWorkFactor)
+  const saltWork: number | undefined = convert(process.env.saltWorkFactor);
   //config.get<number>("saltWorkFactor")
   // generate the salt round
   // Get random number between 0 (inclusive) and 1 (exclusive)
-  Math.random()
+  Math.random();
 
   // Scale random number between min and max
-  const min = 10
-  const max = 13
-  const random = Math.random() * (max - min) + min
-  const salt = await bcrypt.genSalt(random)
-  const hash = await bcrypt.hash(user.password.toString(), salt)
-  user.password = hash
-  return next()
-})
+  const min = 10;
+  const max = 13;
+  const random = Math.random() * (max - min) + min;
+  const salt = await bcrypt.genSalt(random);
+  const hash = await bcrypt.hash(user.password.toString(), salt);
+  user.password = hash;
+  return next();
+});
 userSchema.pre("save", async function (next) {
-  const user = this as IUserDocument
+  const user = this as IUserDocument;
   if (!user.isModified("password") || user.isNew) {
-    return next()
+    return next();
   }
   // subtract one sec from this time so the it always before the token we issued after this is assigned
-  user.passwordChangedAt = Date.now() - 1000
-  next()
-})
+  user.passwordChangedAt = Date.now() - 1000;
+  next();
+});
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
-  userHashedPassword: string
+  userHashedPassword: string,
 ): Promise<boolean> {
   try {
-    const match = await bcrypt.compare(candidatePassword, userHashedPassword)
-    return match
+    const match = await bcrypt.compare(candidatePassword, userHashedPassword);
+    return match;
   } catch (error) {
-    return false
+    return false;
   }
-}
+};
 
 userSchema.methods.isPasswordChangedAfter = function (
-  JWTTimestamp: number
+  JWTTimestamp: number,
 ): boolean {
-  let user = this as IUserDocument
+  let user = this as IUserDocument;
 
   if (user.passwordChangedAt) {
     // getTime return in mill sec and the timestamp is in sec
-    const changedTimestamp = Math.floor(user.passwordChangedAt / 1000)
+    const changedTimestamp = Math.floor(user.passwordChangedAt / 1000);
 
-    return JWTTimestamp < changedTimestamp
+    return JWTTimestamp < changedTimestamp;
   }
 
   // False means NOT changed
-  return false
-}
+  return false;
+};
 userSchema.methods.generatePasswordResetToken = function () {
-  let user = this as IUserDocument
-  const resetToken = crypto.randomBytes(32).toString("hex")
+  let user = this as IUserDocument;
+  const resetToken = crypto.randomBytes(32).toString("hex");
   user.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
-    .digest("hex")
-  user.passwordResetTokenExpires = Date.now() * 60 * 60 * 1000 // one hour
-  return resetToken
-}
+    .digest("hex");
+  user.passwordResetTokenExpires = Date.now() * 60 * 60 * 1000; // one hour
+  return resetToken;
+};
 userSchema.post("save", async function () {
-  let user = this as IUserDocument
-  if (user.isNew)
-    await new Mail(user.email, `${user.fName} ${user.lName}`).sendWelcome()
-})
-const User = mongoose.model<IUserDocument>("User", userSchema)
+  let user = this as IUserDocument;
+  if (user.isNew) await new Mail(user.email, `${user.name}`).sendWelcome();
+});
+const User = mongoose.model<IUserDocument>("User", userSchema);
 
-export default User
+export default User;

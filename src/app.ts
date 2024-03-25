@@ -1,9 +1,7 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
-import helmet from "helmet";
 import dotenv from "dotenv";
-import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -12,6 +10,7 @@ import connectDB from "./utils/connectDB";
 import routes from "./routes";
 import logger from "./utils/logger";
 import cors from "cors";
+import User from "./models/user.model";
 dotenv.config();
 
 const app = express();
@@ -29,8 +28,7 @@ if (PORT !== undefined && isNaN(PORT)) {
 
 // Set trust proxy to true to trust proxy headers
 app.enable("trust proxy");
-// Set security HTTP headers
-app.use(helmet());
+
 // Parse incoming request bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -46,17 +44,6 @@ if (process.env.NODE_ENV?.trim() === "development") {
     ),
   );
 }
-// set rate limiter for the ips to secure from Brute-force attack
-const limiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // one hour
-  max: 1000, // Limit each IP to 1000 requests per `window` (here, per one hour)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: "too many requests from the same IP, Please try again in one hour",
-  validate: false,
-});
-// Apply the rate limiting middleware to all requests
-app.use(limiter);
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -82,8 +69,25 @@ app.use(
 //     credentials: true,
 //   })
 // )
+async function updateNames() {
+  try {
+    const users = <any>await User.find({});
 
-app.get("/", (req, res) => {
+    for (const user of users) {
+      const name = `${user.billing.first_name.split(" ")[0]} ${
+        user.billing.last_name
+      }`;
+      await User.findByIdAndUpdate(user._id, { name });
+      console.log(`${user._id} name to ${name} updated successfully`);
+    }
+    await User.updateMany({}, { $unset: { fName: 1, lName: 1 } });
+
+    console.log("Names updated successfully!");
+  } catch (error) {
+    console.error("Error updating names:", error);
+  }
+}
+app.get("/", (req: Request, res: Response) => {
   res.send(
     `<h1 style="text-align:center; padding-top:100px" >Up And Running🚀</h1>`,
   );
