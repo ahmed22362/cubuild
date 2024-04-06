@@ -89,7 +89,6 @@ class APIFeatures {
         tags: { $in: tagsRegex },
       });
     }
-
     return this;
   }
 }

@@ -58,6 +58,7 @@ app.use(
       /http:\/\/localhost:\d*/,
       "https://cubuild.net",
       "https://cubeart.vercel.app/",
+      "https://cubuild-gules.vercel.app/",
     ],
     optionsSuccessStatus: 200,
   }),

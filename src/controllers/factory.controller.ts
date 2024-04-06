@@ -86,10 +86,11 @@ export const getAll = (
       .paginate();
     // const doc = await features.query.explain();
     const doc = await features.query;
+    const count = await Model.count();
     // SEND RESPONSE
     res.status(200).json({
       status: "success",
-      results: doc.length,
+      results: count,
       data: doc,
     });
   });
