@@ -57,8 +57,7 @@ app.use(
     origin: [
       /http:\/\/localhost:\d*/,
       "https://cubuild.net",
-      "https://cubeart.vercel.app/",
-      "https://cubuild-gules.vercel.app/",
+      "https://cubuild-gules.vercel.app",
     ],
     optionsSuccessStatus: 200,
   }),
@@ -70,24 +69,6 @@ app.use(
 //     credentials: true,
 //   })
 // )
-async function updateNames() {
-  try {
-    const users = <any>await User.find({});
-
-    for (const user of users) {
-      const name = `${user.billing.first_name.split(" ")[0]} ${
-        user.billing.last_name
-      }`;
-      await User.findByIdAndUpdate(user._id, { name });
-      console.log(`${user._id} name to ${name} updated successfully`);
-    }
-    await User.updateMany({}, { $unset: { fName: 1, lName: 1 } });
-
-    console.log("Names updated successfully!");
-  } catch (error) {
-    console.error("Error updating names:", error);
-  }
-}
 app.get("/", (req: Request, res: Response) => {
   res.send(
     `<h1 style="text-align:center; padding-top:100px" >Up And Running🚀</h1>`,

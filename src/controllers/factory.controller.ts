@@ -86,7 +86,10 @@ export const getAll = (
       .paginate();
     // const doc = await features.query.explain();
     const doc = await features.query;
-    const count = await Model.count();
+    const count = await new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .searchByTags()
+      .query.count();
     // SEND RESPONSE
     res.status(200).json({
       status: "success",
