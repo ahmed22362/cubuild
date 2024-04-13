@@ -98,16 +98,6 @@ const userSchema = new mongoose.Schema<IUserDocument>(
       street: { type: String },
       city: { type: String },
       country: { type: String },
-      location: {
-        type: {
-          type: String,
-          enum: ["Point"],
-          default: "Point",
-        },
-        coordinates: {
-          type: [Number], // long , lat
-        },
-      },
     },
     passwordChangedAt: Number,
     passwordResetToken: String,
