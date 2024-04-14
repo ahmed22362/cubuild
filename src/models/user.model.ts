@@ -95,9 +95,7 @@ const userSchema = new mongoose.Schema<IUserDocument>(
     },
     password: { type: String, required: true, select: false },
     address: {
-      street: { type: String },
-      city: { type: String },
-      country: { type: String },
+      type: String,
     },
     passwordChangedAt: Number,
     passwordResetToken: String,

@@ -20,7 +20,7 @@ const payload = {
           required_error: "Email is required",
         })
         .email("Not a valid email"),
-      address: z.optional(addressSchema),
+      address: z.optional(z.string()),
     })
     .refine((data) => data.password === data.passwordConfirmation, {
       message: "Passwords do not match",
